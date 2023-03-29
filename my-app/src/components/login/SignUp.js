@@ -1,18 +1,17 @@
-import { useState } from "react";
-import {
-  TextField,
-  Button,
-} from "@mui/material";
+import { useState, useEffect } from "react";
+import { TextField, Button } from "@mui/material";
 // import { createUserWithEmailAndPassword } from "firebase/auth";
 // import { auth } from "./firebase";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [passwordMatch, setPasswordMatch] = useState(true);
 
   const onSubmit = () => {
     console.log("Signed up!");
-  }
+  };
   // const onSubmit = async (e) => {
   //   e.preventDefault();
 
@@ -35,9 +34,23 @@ export default function SignUp() {
     console.log(target.value);
   };
 
+  useEffect(() => {
+    if (password === password2) {
+      setPasswordMatch(true);
+    } else {
+      setPasswordMatch(false);
+    }
+  }, [password, password2]);
+
   const handlePasswordChange = (event) => {
     const target = event.target;
     setPassword(target.value);
+    console.log(target.value);
+  };
+
+  const handlePassword2Change = (event) => {
+    const target = event.target;
+    setPassword2(target.value);
     console.log(target.value);
   };
 
@@ -60,6 +73,15 @@ export default function SignUp() {
         onChange={handlePasswordChange}
         variant="outlined"
       />
+      <TextField
+        id="outlined-basic"
+        label="Confirm Password"
+        fullWidth
+        value={password2}
+        onChange={handlePassword2Change}
+        variant="outlined"
+      />
+      {passwordMatch ? <div></div> : <div>Passwords do not match!</div>}
       <Button variant="contained" type="submit" onClick={onSubmit}>
         Sign Up
       </Button>
