@@ -1,13 +1,28 @@
+import "../styles/Login.css";
 import React from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import SignIn from "./login/SignIn";
+import SignUp from "./login/SignUp";
 
 export default function Login() {
   return (
-    <div>
-      This is the login page!
+    <div className="Login">
+      <h1>PlayMaker</h1>
+
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <SignIn />
+        </Grid>
+        <Grid item xs={6}>
+          <SignUp />
+        </Grid>
+      </Grid>
+
       <br />
       <Link to="/account">
-        <button variant="contained">Account</button>
+        <Button variant="contained">Guest</Button>
       </Link>
     </div>
   );
