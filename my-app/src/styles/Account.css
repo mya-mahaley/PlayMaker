@@ -3,9 +3,10 @@
   text-align: center;
 }
 
-.MuiGrid-item {
-  /* border: 2px;
-  border-style: solid; */
+.AccountComponent {
+  border: 2px;
+  border-style: solid;
+  margin: 10px;
 }
 
 .container {
