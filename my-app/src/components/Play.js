@@ -15,6 +15,10 @@ import football from "../images/football_bg.png";
 import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { Link } from "react-router-dom";
+import { DndProvider, useDrop } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import Icon from "./play/Icons";
+import Template from "./play/Template";
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/ 
@@ -55,6 +59,14 @@ export default function Play() {
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [canDraw, setCanDraw] = useState(false);
+
+  const [template, setTemplate] = useState([]);
+
+  const TEMPLATES = [
+    { id: 1, name: "x" },
+    { id: 2, name: "o" },
+  ];
+  
 
 
   function handleColorClick(value){
@@ -122,6 +134,7 @@ export default function Play() {
     const { offsetX, offsetY } = nativeEvent;
     contextRef.current.lineTo(offsetX, offsetY);
     contextRef.current.stroke();
+    contextRef.current.strokeStyle = color
     nativeEvent.preventDefault();
   };
 
@@ -139,7 +152,7 @@ export default function Play() {
   };
 
   return (
-    <div>    
+    <div> 
       <Container >
         <Row className="headerBorder">
           <Col className="containerBorder" xs lg="3">
@@ -166,6 +179,8 @@ export default function Play() {
             <Row className="containerBorder">
               <h3>Shapes</h3>
               <Container>
+
+              
               <Button onClick={setToDraw}>
           Pen
         </Button>
@@ -238,19 +253,19 @@ export default function Play() {
             </Row>           
           </Col>
           <Col className="containerBorder">
-          <canvas
-        // background image
-        style={{ backgroundImage: `url(${currentBackground})` }}
-        className="Canvas"
-        ref={canvasRef}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      ></canvas>
+            <canvas
+              // background image
+              style={{ backgroundImage: `url(${currentBackground})` }}
+              className="Canvas"
+              ref={canvasRef}
+              onMouseDown={startDrawing}
+              onMouseMove={draw}
+              onMouseUp={stopDrawing}
+              onMouseLeave={stopDrawing}
+            ></canvas> 
           </Col>
         </Row>
       </Container>
-    </div>
+      </div>
   );
 }
