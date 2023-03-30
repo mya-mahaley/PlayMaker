@@ -2,7 +2,9 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useDrop } from "react-dnd";
 import Icon from "./Icons";
+import DraggableIcon from "./DraggableIcon";
 import "./TemplateStyle.css";
+import { Draggable } from "react-draggable";
 
 const TEMPLATES = [
   { id: 1, name: "x" },
@@ -24,16 +26,10 @@ function Template() {
 
   return (
     <div>
-      <div className="icons">
-        {TEMPLATES.map((template) => (
-          <Icon draggable id={template.id} name={template.name} />
-        ))}
-      </div>
-
       <div className="field" ref={dropRef}>
         Drag and Drop the icons above here
         {template.map((icon) => (
-          <Icon id={icon.id} name={icon.name} />
+          <DraggableIcon id={icon.id} name={icon.name} />
         ))}
         {isOver}
       </div>

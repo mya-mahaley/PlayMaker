@@ -13,7 +13,7 @@ export default function Account() {
   return (
     <div className="Account">
       <Container className="AccountScreen">
-        <Row className="align-items-center">
+        <Row className="anpm i react-bootstraplign-items-center">
           <Col>
             <TextField
               id="outlined-basic"
@@ -69,7 +69,7 @@ export default function Account() {
         <Row>
           <Col className="AccountComponent">
             <h1>PlayMaker</h1>
-            <img src={logo} width={50} alt="PlayMaker logo"/>
+            <img src={logo} width={50} alt="PlayMaker logo" />
           </Col>
           <Col className="AccountComponent">Selected Play Name</Col>
           <Col className="AccountComponent">Export Delete</Col>

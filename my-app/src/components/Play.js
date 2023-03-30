@@ -4,17 +4,29 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Icon from "./play/Icons";
 import Template from "./play/Template";
+import Draggable from "react-draggable";
+const TEMPLATES = [
+  { id: 1, name: "x" },
+  { id: 2, name: "o" },
+];
 
 function Play() {
-  const [field1, setField1] = React.useState("");
-  React.useEffect(() => {
-    console.log(field1);
-  }, [field1]);
   return (
     <div>
       This is the play page!
       <DndProvider backend={HTML5Backend}>
-        <Template> ww</Template>
+        <div className="icons">
+          <h1>Icons</h1>
+          <br></br>
+
+          {TEMPLATES.map((template) => (
+            <div className="icon">
+              <Icon draggable id={template.id} name={template.name} />
+            </div>
+          ))}
+        </div>
+
+        <Template> </Template>
       </DndProvider>
       <br />
       <Link to="/account">
