@@ -1,0 +1,16 @@
+.containerBorder {
+  border: solid #000;
+  border-width: 2px;  
+  text-align: center;
+  padding: 10px;
+}
+.headerBorder {
+  border: solid #000;
+  border-width: 0px;
+  text-align: center;
+}
+
+
+.NotesButton {
+  margin: 0px;
+}
