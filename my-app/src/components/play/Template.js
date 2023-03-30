@@ -25,6 +25,7 @@ function Template() {
         <DraggableIcon id={icon.id} name={icon.name} />
       ))}
       {isOver}
+      
       <Draggable bounds="parent">
         <div className="icon">X</div>
       </Draggable>

@@ -1,11 +1,12 @@
 import React from "react";
 import Draggable from "react-draggable";
+import o_shape from "./o_shape.png"
 
 function DraggableIcon({ id, name }) {
 
   return (
     <Draggable bounds="parent">
-      <div className="icon">{name}</div>
+      <img className="icon"  src={o_shape} alt="o shape"/>
     </Draggable>
   );
 }
