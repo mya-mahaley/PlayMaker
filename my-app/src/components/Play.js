@@ -16,6 +16,9 @@ import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { Link } from "react-router-dom";
 
+// Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
+// Color Picker Button from https://casesandberg.github.io/react-color/ 
+
 function ColorButton({value, onColorClick}) {
   const cStyle={
     "aspectRatio": 1,
