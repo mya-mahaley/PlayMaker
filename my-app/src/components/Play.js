@@ -65,6 +65,7 @@ export default function Play() {
   const [currentBackground, changeCurrentBackground] = useState(blank);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+  const [currentRef, changeCurrentRef] = useState(canvasRef);
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [canDraw, setCanDraw] = useState(false);
@@ -115,6 +116,8 @@ export default function Play() {
     bottom: "0px",
     left: "0px",
   };
+
+  // this only runs once... so ideally we can change ref and be fine??
   useEffect(() => {
     const canvas = canvasRef.current;
     // Make it visually fill the positioned parent
@@ -129,6 +132,8 @@ export default function Play() {
     context.strokeStyle = "black";
     context.lineWidth = 5;
     contextRef.current = context;
+
+    changeCurrentRef(dropRef);
   }, []);
 
   const startDrawing = ({ nativeEvent }) => {
@@ -322,13 +327,13 @@ export default function Play() {
               // background image
               style={{ backgroundImage: `url(${currentBackground})` }}
               className="Canvas"
-              ref={canvasRef}
+              ref={currentRef}
               onMouseDown={startDrawing}
               onMouseMove={draw}
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
             >
-              <div ref={dropRef}>
+              {/* <div ref={dropRef}> */}
                 {template.map((icon) => (
                   <DraggableIcon id={icon.id} name={icon.name} />
                 ))}
@@ -338,7 +343,7 @@ export default function Play() {
                   <img className="icon" src={o_shape} alt="o shape" />
                 </Draggable>
               </div> */}
-              </div>
+              {/* </div> */}
             </canvas>
           </Col>
         </Row>
