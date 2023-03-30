@@ -1,24 +1,24 @@
 .icons {
-
-    width: 30vw;
-    height: 15h;
-    border: 2px solid black;
-    margin-top: 3vh;
-    padding-left: 10px;
-
+  width: 30vw;
+  height: 15h;
+  border: 2px solid black;
+  margin-top: 3vh;
+  padding-left: 10px;
 }
+
 .icon {
-    margin-right: 10px;
+  margin-right: 10px;
 }
+
 .field {
-    width: 50vw;
-    height: 50vh;
-    border: 2px solid black;
-    margin-top: 3vh;
-    padding-left: 10px;
+  width: 50vw;
+  height: 50vh;
+  border: 2px solid black;
+  margin-top: 3vh;
+  padding-left: 10px;
+  position: relative;
 }
 
 body {
-    padding: 20px;
+  padding: 20px;
 }
-

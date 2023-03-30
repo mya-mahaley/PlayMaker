@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDrag } from "react-dnd";
-import Draggable from "react-draggable";
 
 function Icon({ id, name }) {
   const [{ isDragging }, dragRef] = useDrag({
@@ -10,6 +9,7 @@ function Icon({ id, name }) {
       isDragging: monitor.isDragging(),
     }),
   });
+  
   return (
     <div className="icon" ref={dragRef}>
       {name}

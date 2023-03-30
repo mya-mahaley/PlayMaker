@@ -4,13 +4,13 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Icon from "./play/Icons";
 import Template from "./play/Template";
-import Draggable from "react-draggable";
-const TEMPLATES = [
-  { id: 1, name: "x" },
-  { id: 2, name: "o" },
-];
 
 function Play() {
+  const TEMPLATES = [
+    { id: 1, name: "x" },
+    { id: 2, name: "o" },
+  ];
+  
   return (
     <div>
       This is the play page!
