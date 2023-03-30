@@ -3,6 +3,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form'
+import blank from "../images/blank_bg.jpg";
+import football from "../images/football_bg.png";
+import basketball from "../images/basketball_bg.jpg";
+import baseball from "../images/baseball_bg.jpg";
 import { useState } from "react";
 
 

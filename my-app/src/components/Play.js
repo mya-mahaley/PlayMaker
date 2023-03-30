@@ -6,10 +6,14 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Notes from "./Notes.js"
 import Form from 'react-bootstrap/Form'
-import { BlockPicker, SketchPicker } from 'react-color';
+import { SketchPicker } from 'react-color';
+import blank from "../images/blank_bg.jpg";
+import football from "../images/football_bg.png";
+import basketball from "../images/basketball_bg.jpg";
+import baseball from "../images/baseball_bg.jpg";
 import { Link } from "react-router-dom";
 
 function ColorButton({value, onColorClick}) {
@@ -42,6 +46,13 @@ export default function Play() {
   const [title, setTitle] = useState("Play");
   const [color, setColor] = useState("Play");
   const [pickerColor, setPickerColor] = useState("#DD22BD");
+  const [currentBackground, changeCurrentBackground] = useState(blank);
+  const canvasRef = useRef(null);
+  const contextRef = useRef(null);
+
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [canDraw, setCanDraw] = useState(false);
+
 
   function handleColorClick(value){
     setColor(value)
@@ -71,6 +82,58 @@ export default function Play() {
     bottom: '0px',
     left: '0px',
   }
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    // Make it visually fill the positioned parent
+    canvas.style.width ='100%';
+    canvas.style.height='100%';
+    // ...then set the internal size to match
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    const context = canvas.getContext("2d");
+    context.lineCap = "round";
+    context.strokeStyle = "black";
+    context.lineWidth = 5;
+    contextRef.current = context;
+  }, []);
+
+  const startDrawing = ({ nativeEvent }) => {
+    // can only draw if selected, so we can drag shapes around on the screen
+    if (canDraw) {
+      const { offsetX, offsetY } = nativeEvent;
+      contextRef.current.beginPath();
+      contextRef.current.moveTo(offsetX, offsetY);
+      contextRef.current.lineTo(offsetX, offsetY);
+      contextRef.current.stroke();
+      setIsDrawing(true);
+      nativeEvent.preventDefault();
+    }
+  };
+
+  const draw = ({ nativeEvent }) => {
+    if (!isDrawing) {
+      return;
+    }
+
+    const { offsetX, offsetY } = nativeEvent;
+    contextRef.current.lineTo(offsetX, offsetY);
+    contextRef.current.stroke();
+    nativeEvent.preventDefault();
+  };
+
+  const stopDrawing = () => {
+    contextRef.current.closePath();
+    setIsDrawing(false);
+  };
+
+  const setToDraw = () => {
+    contextRef.current.globalCompositeOperation = "source-over";
+  };
+
+  const setToErase = () => {
+    contextRef.current.globalCompositeOperation = "destination-out";
+  };
 
   return (
     <div>    
@@ -99,6 +162,20 @@ export default function Play() {
           <Col xs lg="3">
             <Row className="containerBorder">
               <h3>Shapes</h3>
+              <Container>
+              <Button onClick={setToDraw}>
+          Pen
+        </Button>
+        <Button onClick={setToErase}>
+          Erase
+        </Button>
+        <Button onClick={() => setCanDraw(true)}>
+          Can Draw
+        </Button>
+        <Button onClick={() => setCanDraw(false)}>
+          Can't Draw
+        </Button>
+              </Container>
               
             </Row>
             <Row className="containerBorder">
@@ -124,6 +201,28 @@ export default function Play() {
             </Row>
             <Row className="containerBorder">
               <h3>Templates</h3>
+              <Container>
+                <Button
+                  onClick={() => changeCurrentBackground(football)}
+                >
+                  Football
+                </Button>
+                <Button
+                  onClick={() => changeCurrentBackground(basketball)}
+                >
+                  Basketball
+                </Button>
+                <Button
+                  onClick={() => changeCurrentBackground(baseball)}
+                >
+                  Baseball
+                </Button>
+                <Button
+                  onClick={() => changeCurrentBackground(blank)}
+                >
+                  Reset BG
+                </Button>
+              </Container>
             </Row> 
             <Row className="containerBorder">
               <Button variant="primary" className="NotesButton" onClick={() => setShowNotes(true)}>
@@ -136,7 +235,16 @@ export default function Play() {
             </Row>           
           </Col>
           <Col className="containerBorder">
-            <h3>Canvas Column</h3>
+          <canvas
+        // background image
+        style={{ backgroundImage: `url(${currentBackground})` }}
+        className="Canvas"
+        ref={canvasRef}
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+      ></canvas>
           </Col>
         </Row>
       </Container>
