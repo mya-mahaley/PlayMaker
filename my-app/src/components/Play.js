@@ -1,25 +1,50 @@
-import React from "react";
+import "../styles/Play.css";
+import { React, useState } from "react";
 import { Link } from "react-router-dom";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import Icon from "./play/Icons";
-import Template from "./play/Template";
+import Button from "@mui/material/Button";
+import blank from "../images/blank_bg.jpg";
+import football from "../images/football_bg.png";
+import basketball from "../images/basketball_bg.jpg";
+import baseball from "../images/baseball_bg.jpg";
 
 function Play() {
-  const [field1, setField1] = React.useState("");
-  React.useEffect(() => {
-    console.log(field1);
-  }, [field1]);
+  const [currentBackground, changeCurrentBackground] = useState(blank);
+  
   return (
     <div>
-      This is the play page!
-      <DndProvider backend={HTML5Backend}>
-        <Template> ww</Template>
-      </DndProvider>
-      <br />
       <Link to="/account">
-        <button variant="contained">Account</button>
+        <Button variant="contained">Account</Button>
       </Link>
+      <br />
+      <Button
+        variant="contained"
+        onClick={() => changeCurrentBackground(football)}
+      >
+        Football
+      </Button>
+      <Button
+        variant="contained"
+        onClick={() => changeCurrentBackground(basketball)}
+      >
+        Basketball
+      </Button>
+      <Button
+        variant="contained"
+        onClick={() => changeCurrentBackground(baseball)}
+      >
+        Baseball
+      </Button>
+      <Button
+        variant="contained"
+        onClick={() => changeCurrentBackground(blank)}
+      >
+        Reset BG
+      </Button>
+
+      <div
+        style={{ backgroundImage: `url(${currentBackground})` }}
+        className="Canvas"
+      ></div>
     </div>
   );
 }
