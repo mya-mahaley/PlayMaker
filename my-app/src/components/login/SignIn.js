@@ -1,8 +1,6 @@
 import { useState } from "react";
-import {
-  TextField,
-  Button,
-} from "@mui/material";
+import { Link } from "react-router-dom";
+import { TextField, Button } from "@mui/material";
 // import { signInWithEmailAndPassword } from "firebase/auth";
 // import { auth } from "./firebase";
 
@@ -12,22 +10,22 @@ export default function SignIn() {
 
   const onSubmit = () => {
     console.log("Signed in!");
-  }
-//   const onSubmit = async (e) => {
-//     e.preventDefault();
+  };
+  //   const onSubmit = async (e) => {
+  //     e.preventDefault();
 
-//     signInWithEmailAndPassword(auth, email, password)
-//       .then((userCredential) => {
-//         // signed in
-//         const user = userCredential.user;
-//         console.log(user);
-//       })
-//       .catch((error) => {
-//         const errorCode = error.code;
-//         const errorMessage = error.message;
-//         console.log(errorCode, errorMessage);
-//       });
-//   };
+  //     signInWithEmailAndPassword(auth, email, password)
+  //       .then((userCredential) => {
+  //         // signed in
+  //         const user = userCredential.user;
+  //         console.log(user);
+  //       })
+  //       .catch((error) => {
+  //         const errorCode = error.code;
+  //         const errorMessage = error.message;
+  //         console.log(errorCode, errorMessage);
+  //       });
+  //   };
 
   const handleEmailChange = (event) => {
     const target = event.target;
@@ -60,9 +58,11 @@ export default function SignIn() {
         onChange={handlePasswordChange}
         variant="outlined"
       />
-      <Button variant="contained" onClick={onSubmit}>
-        Login
-      </Button>
+      <Link to="/account">
+        <Button variant="contained" onClick={onSubmit}>
+          Login
+        </Button>
+      </Link>
     </div>
   );
 }

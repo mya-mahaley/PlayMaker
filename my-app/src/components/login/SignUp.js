@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { TextField, Button } from "@mui/material";
 // import { createUserWithEmailAndPassword } from "firebase/auth";
 // import { auth } from "./firebase";
@@ -82,9 +83,11 @@ export default function SignUp() {
         variant="outlined"
       />
       {passwordMatch ? <div></div> : <div>Passwords do not match!</div>}
-      <Button variant="contained" type="submit" onClick={onSubmit}>
-        Sign Up
-      </Button>
+      <Link to="/account">
+        <Button variant="contained" type="submit" onClick={onSubmit}>
+          Sign Up
+        </Button>
+      </Link>
     </div>
   );
 }

@@ -119,7 +119,7 @@ function Play() {
           Draw
         </Button>
         <Button variant="contained" onClick={() => setCanDraw(false)}>
-          Can't Draw
+          Don't Draw
         </Button>
       </div>
     </div>
