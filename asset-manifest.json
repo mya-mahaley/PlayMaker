@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/PlayMaker/static/css/main.00e02217.css",
-    "main.js": "/PlayMaker/static/js/main.50dbfe26.js",
+    "main.js": "/PlayMaker/static/js/main.66e25d76.js",
     "static/media/basketball_bg.jpg": "/PlayMaker/static/media/basketball_bg.b4ddc0117632c70d9668.jpg",
     "static/media/football_bg.png": "/PlayMaker/static/media/football_bg.c7d33838bec33a3d81b6.png",
     "static/media/baseball_bg.jpg": "/PlayMaker/static/media/baseball_bg.107656181bd0a3339af5.jpg",
     "static/media/PlayMakerLogo.png": "/PlayMaker/static/media/PlayMakerLogo.d7b7786a25262844a7f4.png",
     "index.html": "/PlayMaker/index.html",
     "main.00e02217.css.map": "/PlayMaker/static/css/main.00e02217.css.map",
-    "main.50dbfe26.js.map": "/PlayMaker/static/js/main.50dbfe26.js.map"
+    "main.66e25d76.js.map": "/PlayMaker/static/js/main.66e25d76.js.map"
   },
   "entrypoints": [
     "static/css/main.00e02217.css",
-    "static/js/main.50dbfe26.js"
+    "static/js/main.66e25d76.js"
   ]
 }
