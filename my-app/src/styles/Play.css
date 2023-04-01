@@ -4,15 +4,18 @@
   text-align: center;
   padding: 10px;
 }
+
 .headerBorder {
   border: solid #000;
   border-width: 0px;
   text-align: center;
 }
+
 .Canvas {
   border: 2px;
   border-style: solid;
 }
+
 .NotesButton {
   margin: 0px;
 }

@@ -19,6 +19,7 @@ import Icon from "./play/Icons";
 import Template from "./play/Template";
 import Draggable from "react-draggable";
 import o_shape from "./play/o_shape.png";
+import x_shape from "./play/x_shape.png";
 import DraggableIcon from "./play/DraggableIcon";
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
@@ -65,28 +66,49 @@ export default function Play() {
   const [currentBackground, changeCurrentBackground] = useState(blank);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
-  const [currentRef, changeCurrentRef] = useState(canvasRef);
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [canDraw, setCanDraw] = useState(false);
 
-  const [template, setTemplate] = useState([]);
+  let shapes = [];
+  let lastX = 0;
+  let lastY = 0;
+  let mouseIsDown = false;
 
-  const TEMPLATES = [
-    { id: 1, name: "x" },
-    { id: 2, name: "o" },
-  ];
+  const addShape = (shape) => {
+    let newShape = {
+      x: 20,
+      y: 20,
+      fill: pickerColor,
+    };
+    if (shape === "O") {
+      newShape.image = o_shape;
+    } else {
+      newShape.image = x_shape;
+    }
+    shapes.push(newShape);
+    drawShape(newShape);
+  };
 
-  const [{ isOver }, dropRef] = useDrop({
-    accept: "icon",
-    drop: (item) =>
-      setTemplate((template) =>
-        !template.includes(item) ? [...template, item] : template
-      ),
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
-  });
+  const drawShape = (shape) => {
+    let shapeImage = new Image();
+    shapeImage.src = shape.image;
+    shapeImage.onload = () => {
+      contextRef.current.drawImage(shapeImage, shape.x, shape.y, 50, 50);
+    };
+  };
+
+  const drawAllShapes = () => {
+    const canvas = canvasRef.current;
+
+    // erases the entire canvas... we don't want that
+    contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < shapes.length; i++) {
+      let shape = shapes[i];
+      drawShape(shape);
+    }
+  };
 
   function handleColorClick(value) {
     setColor(value);
@@ -132,14 +154,12 @@ export default function Play() {
     context.strokeStyle = "black";
     context.lineWidth = 5;
     contextRef.current = context;
-
-    changeCurrentRef(dropRef);
   }, []);
 
   const startDrawing = ({ nativeEvent }) => {
     // can only draw if selected, so we can drag shapes around on the screen
+    const { offsetX, offsetY } = nativeEvent;
     if (canDraw) {
-      const { offsetX, offsetY } = nativeEvent;
       contextRef.current.beginPath();
       contextRef.current.moveTo(offsetX, offsetY);
       contextRef.current.lineTo(offsetX, offsetY);
@@ -147,23 +167,46 @@ export default function Play() {
       setIsDrawing(true);
       nativeEvent.preventDefault();
     }
+
+    lastX = offsetX;
+    lastY = offsetY;
+    // mouseIsDown = true;
   };
 
   const draw = ({ nativeEvent }) => {
-    if (!isDrawing) {
-      return;
-    }
-
+    // if (!mouseIsDown) {
+    //   return;
+    // }
     const { offsetX, offsetY } = nativeEvent;
-    contextRef.current.lineTo(offsetX, offsetY);
-    contextRef.current.stroke();
-    contextRef.current.strokeStyle = color;
-    nativeEvent.preventDefault();
+    if (!isDrawing && canDraw) {
+      return;
+    } else if (!canDraw) {
+      // drag shapes if possible
+      // right now it is redrawing the shapes but is not dragging it
+      for (let i = 0; i < shapes.length; i++) {
+        var shape = shapes[i];
+        drawShape(shape);
+        if (contextRef.current.isPointInPath(lastX, lastY)) {
+          shape.x += (offsetX - lastX);
+          shape.y += (offsetY - lastY);
+        }
+      }
+
+      lastX = offsetX;
+      lastY = offsetY;
+      drawAllShapes();
+    } else {
+      contextRef.current.lineTo(offsetX, offsetY);
+      contextRef.current.stroke();
+      contextRef.current.strokeStyle = color;
+      nativeEvent.preventDefault();
+    }
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = ({ nativeEvent }) => {
     contextRef.current.closePath();
     setIsDrawing(false);
+    // mouseIsDown = false;
   };
 
   const setToDraw = () => {
@@ -213,11 +256,13 @@ export default function Play() {
             <Row className="containerBorder">
               <h3>Shapes</h3>
               <Container>
-                {TEMPLATES.map((template) => (
+                {/* {TEMPLATES.map((template) => (
                   <div className="icon">
                     <Icon draggable id={template.id} name={template.name} />
                   </div>
-                ))}
+                ))} */}
+                <Button onClick={() => addShape("O")}>O</Button>
+                <Button onClick={() => addShape("X")}>X</Button>
 
                 <Button onClick={setToDraw}>Pen</Button>
                 <Button onClick={setToErase}>Erase</Button>
@@ -327,24 +372,23 @@ export default function Play() {
               // background image
               style={{ backgroundImage: `url(${currentBackground})` }}
               className="Canvas"
-              ref={currentRef}
+              ref={canvasRef}
               onMouseDown={startDrawing}
               onMouseMove={draw}
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
-            >
-              {/* <div ref={dropRef}> */}
+            ></canvas>
+            {/* <div ref={dropRef}>
                 {template.map((icon) => (
                   <DraggableIcon id={icon.id} name={icon.name} />
                 ))}
                 {isOver}
-                {/* <div>
-                <Draggable bounds="parent">
-                  <img className="icon" src={o_shape} alt="o shape" />
-                </Draggable>
+                <div>
+                  <Draggable bounds="parent">
+                    <img className="icon" src={o_shape} alt="o shape" />
+                  </Draggable>
+                </div>
               </div> */}
-              {/* </div> */}
-            </canvas>
           </Col>
         </Row>
       </Container>
