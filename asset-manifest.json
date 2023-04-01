@@ -1,16 +1,17 @@
 {
   "files": {
-    "main.css": "/PlayMaker/static/css/main.073c9b0a.css",
-    "main.js": "/PlayMaker/static/js/main.68cfd043.js",
-    "static/js/787.28cb0dcd.chunk.js": "/PlayMaker/static/js/787.28cb0dcd.chunk.js",
-    "static/media/logo.svg": "/PlayMaker/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "main.css": "/PlayMaker/static/css/main.00e02217.css",
+    "main.js": "/PlayMaker/static/js/main.5c0f9965.js",
+    "static/media/basketball_bg.jpg": "/PlayMaker/static/media/basketball_bg.b4ddc0117632c70d9668.jpg",
+    "static/media/football_bg.png": "/PlayMaker/static/media/football_bg.c7d33838bec33a3d81b6.png",
+    "static/media/baseball_bg.jpg": "/PlayMaker/static/media/baseball_bg.107656181bd0a3339af5.jpg",
+    "static/media/PlayMakerLogo.png": "/PlayMaker/static/media/PlayMakerLogo.d7b7786a25262844a7f4.png",
     "index.html": "/PlayMaker/index.html",
-    "main.073c9b0a.css.map": "/PlayMaker/static/css/main.073c9b0a.css.map",
-    "main.68cfd043.js.map": "/PlayMaker/static/js/main.68cfd043.js.map",
-    "787.28cb0dcd.chunk.js.map": "/PlayMaker/static/js/787.28cb0dcd.chunk.js.map"
+    "main.00e02217.css.map": "/PlayMaker/static/css/main.00e02217.css.map",
+    "main.5c0f9965.js.map": "/PlayMaker/static/js/main.5c0f9965.js.map"
   },
   "entrypoints": [
-    "static/css/main.073c9b0a.css",
-    "static/js/main.68cfd043.js"
+    "static/css/main.00e02217.css",
+    "static/js/main.5c0f9965.js"
   ]
 }
