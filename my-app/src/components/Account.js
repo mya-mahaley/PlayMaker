@@ -7,6 +7,7 @@ import TextField from "@mui/material/TextField";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Account() {
@@ -14,7 +15,7 @@ export default function Account() {
     <div className="Account">
       <Container className="AccountScreen">
         <Row className="align-items-center">
-          <Col>
+          <Col xs lg="3">
             <TextField
               id="outlined-basic"
               label="Search"
@@ -29,11 +30,12 @@ export default function Account() {
             <Link to="/">
               <Button variant="contained">Logout</Button>
             </Link>
+            <Button variant="contained">Recently Deleted</Button>
           </Col>
         </Row>
 
         <Row className="align-items-center">
-          <Col>
+          <Col xs lg="3">
             <Row>
               <Col className="AccountComponent">
                 <Button variant="contained">New Folder</Button>
@@ -67,11 +69,28 @@ export default function Account() {
         </Row>
 
         <Row>
-          <Col className="AccountComponent">
-            <h1>PlayMaker</h1>
-            <img src={logo} width={50} alt="PlayMaker logo"/>
+          <Col className="AccountComponent" xs lg="3">
+            <Row>
+            <Col><h3 className="TextAlignment">PlayMaker</h3></Col>
+            <Col><img src={logo} width={40} alt="PlayMaker logo"/></Col>
+            </Row>
           </Col>
-          <Col className="AccountComponent">Selected Play Name</Col>
+          <Row className="align-items-center">
+              <Form>
+                <Form.Group
+                  className="mb-3"
+                  controlId="exampleForm.ControlTextarea1"
+                >
+                  <Form.Control
+                    size="lg"
+                    type="text"
+                    rows={1}
+                    onChange={(e) => {;
+                    }}
+                    defaultValue={"Selected Play"}
+                  />
+                </Form.Group>
+              </Form> </Row>
           <Col className="AccountComponent">Export Delete</Col>
         </Row>
       </Container>
