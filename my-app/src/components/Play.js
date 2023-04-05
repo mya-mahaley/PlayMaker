@@ -14,17 +14,10 @@ import football from "../images/football_bg.png";
 import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { Link } from "react-router-dom";
-import { useDrop } from "react-dnd";
-import Icon from "./play/Icons";
-import Template from "./play/Template";
-import Draggable from "react-draggable";
-import o_shape from "./play/o_shape.png";
-import x_shape from "./play/x_shape.png";
-import DraggableIcon from "./play/DraggableIcon";
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
-// Draggable stuff from https://jsfiddle.net/m1erickson/sEBAC
+// Able to drag stuff from https://jsfiddle.net/m1erickson/sEBAC
 
 function ColorButton({ value, onColorClick }) {
   const cStyle = {
@@ -68,41 +61,42 @@ export default function Play() {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
 
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [canDraw, setCanDraw] = useState(false);
+  const [mouseDown, setMouseDown] = useState(false);
+  // engage draw mode (true) or drag mode (false)
+  const [canDraw, setCanDraw] = useState(true);
 
   // shapes array, keeps track of all shapes
-  let shapes = [];
+  const [shapes, setShapes] = useState([]);
 
   // lines array, keeps track of all lines
   const [existingLines, setExistingLines] = useState([]);
+  // initial line coords, keep track of beginning of line
   const [initialLineCoords, setInitialLineCoords] = useState([0, 0]);
 
   let lastX = 0;
   let lastY = 0;
-  let mouseIsDown = false;
 
   const addShape = (shape) => {
     let newShape = {
-      x: 20,
-      y: 20,
-      fill: pickerColor,
+      x: 50,
+      y: 50,
+      fill: color,
+      shape: shape,
     };
-    if (shape === "O") {
-      newShape.image = o_shape;
-    } else {
-      newShape.image = x_shape;
-    }
-    shapes.push(newShape);
+    let newShapes = shapes;
+    newShapes.push(newShape);
+    setShapes(newShapes);
+
     drawShape(newShape);
   };
 
   const drawShape = (shape) => {
-    let shapeImage = new Image();
-    shapeImage.src = shape.image;
-    shapeImage.onload = () => {
-      contextRef.current.drawImage(shapeImage, shape.x, shape.y, 50, 50);
-    };
+    contextRef.current.beginPath();
+    if (shape.shape === "O") {
+      contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
+    }
+    contextRef.current.strokeStyle = shape.fill;
+    contextRef.current.stroke();
   };
 
   const drawLine = (line) => {
@@ -111,7 +105,7 @@ export default function Play() {
     contextRef.current.lineTo(line.end_x, line.end_y);
     contextRef.current.strokeStyle = line.color;
     contextRef.current.stroke();
-  }
+  };
 
   const drawAllShapes = () => {
     for (let i = 0; i < shapes.length; i++) {
@@ -126,12 +120,13 @@ export default function Play() {
       let line = existingLines[i];
       drawLine(line);
     }
-  }
+  };
 
   const drawEverything = () => {
     const canvas = canvasRef.current;
 
-    // erases the entire canvas... we don't want that
+    // erases the entire canvas
+    // why? so we can infinitely redraw with new coords to simulate "dragging"
     contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
     drawAllShapes();
     drawAllLines();
@@ -158,6 +153,7 @@ export default function Play() {
     position: "absolute",
     zIndex: "2",
   };
+
   const cover = {
     position: "fixed",
     top: "0px",
@@ -166,7 +162,7 @@ export default function Play() {
     left: "0px",
   };
 
-  // grabs reference to canvas
+  // sets up and grabs reference to canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     // Make it visually fill the positioned parent
@@ -186,30 +182,23 @@ export default function Play() {
   const startDrawing = ({ nativeEvent }) => {
     // can only draw if selected, so we can have separate drag mode
     const { offsetX, offsetY } = nativeEvent;
+    nativeEvent.preventDefault();
     if (canDraw) {
       contextRef.current.beginPath();
       contextRef.current.moveTo(offsetX, offsetY);
       contextRef.current.lineTo(offsetX, offsetY);
       contextRef.current.stroke();
       setInitialLineCoords([offsetX, offsetY]);
-      setIsDrawing(true);
-      nativeEvent.preventDefault();
     }
-
     lastX = offsetX;
     lastY = offsetY;
-    // mouseIsDown = true;
+    setMouseDown(true);
   };
 
   const draw = ({ nativeEvent }) => {
-    // if (!mouseIsDown) {
-    //   return;
-    // }
     const { offsetX, offsetY } = nativeEvent;
-    // needs mouse down
-    if (!isDrawing && canDraw) {
-      return;
-    } else if (!canDraw) {
+    nativeEvent.preventDefault();
+    if (!canDraw && mouseDown) {
       // drag mode (mouse down and can't draw)
       // right now it is redrawing the shapes but is not dragging it
       for (let i = 0; i < shapes.length; i++) {
@@ -220,23 +209,35 @@ export default function Play() {
           shape.y += offsetY - lastY;
         }
       }
+      for (let i = 0; i < existingLines.length; i++) {
+        var line = existingLines[i];
+        drawLine(line);
+        if (contextRef.current.isPointInPath(lastX, lastY)) {
+          line.start_x += offsetX - lastX;
+          line.start_y += offsetY - lastY;
+          line.end_x += offsetX - lastX;
+          line.end_y += offsetY - lastY;
+        }
+      }
 
       lastX = offsetX;
       lastY = offsetY;
       drawEverything();
-    } else {
+    } else if (canDraw && mouseDown) {
       // paint mode (mouse down and can draw)
       contextRef.current.lineTo(offsetX, offsetY);
       contextRef.current.stroke();
       contextRef.current.strokeStyle = color;
-      nativeEvent.preventDefault();
+    } else {
+      // else do nothing
+      return;
     }
   };
 
   // stop drawing, so straighten out any lines and add it to existing lines
   const stopDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
-    if (isDrawing) {
+    if (canDraw && mouseDown) {
       let current_line = {
         start_x: initialLineCoords[0],
         start_y: initialLineCoords[1],
@@ -244,15 +245,14 @@ export default function Play() {
         end_y: offsetY,
         color: color,
       };
-      
+
       let newExistingLines = existingLines;
       newExistingLines.push(current_line);
       setExistingLines(newExistingLines);
       drawEverything();
     }
     contextRef.current.closePath();
-    setIsDrawing(false);
-    // mouseIsDown = false;
+    setMouseDown(false);
   };
 
   const setToDraw = () => {
@@ -312,8 +312,8 @@ export default function Play() {
 
                 <Button onClick={setToDraw}>Pen</Button>
                 <Button onClick={setToErase}>Erase</Button>
-                <Button onClick={() => setCanDraw(true)}>Can Draw</Button>
-                <Button onClick={() => setCanDraw(false)}>Can't Draw</Button>
+                <Button onClick={() => setCanDraw(true)}>Draw Mode</Button>
+                <Button onClick={() => setCanDraw(false)}>Drag Mode</Button>
               </Container>
             </Row>
             <Row className="containerBorder">
@@ -424,17 +424,6 @@ export default function Play() {
               onMouseUp={stopDrawing}
               onMouseLeave={stopDrawing}
             ></canvas>
-            {/* <div ref={dropRef}>
-                {template.map((icon) => (
-                  <DraggableIcon id={icon.id} name={icon.name} />
-                ))}
-                {isOver}
-                <div>
-                  <Draggable bounds="parent">
-                    <img className="icon" src={o_shape} alt="o shape" />
-                  </Draggable>
-                </div>
-              </div> */}
           </Col>
         </Row>
       </Container>
