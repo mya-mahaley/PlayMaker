@@ -160,12 +160,12 @@ export default function Play() {
             (mouseY - currentDrawing.startY) * distanceY) /
           (distanceX * distanceX + distanceY * distanceY);
         t = Math.max(0, Math.min(1, t)); // not sure if this line is needed
-        closestX = lerp(currentDrawing.startX, currentDrawing.endY, t);
+        closestX = lerp(currentDrawing.startX, currentDrawing.endX, t);
         closestY = lerp(currentDrawing.startY, currentDrawing.endY, t);
       }
       distanceX = mouseX - closestX;
       distanceY = mouseY - closestY;
-      let distance = closestX * closestX + distanceY * distanceY;
+      let distance = distanceX * distanceX + distanceY * distanceY;
       if (distance < minDistance) {
         minDistance = distance;
         closestIndex = i;
@@ -246,6 +246,7 @@ export default function Play() {
   const draw = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
     nativeEvent.preventDefault();
+    // console.log(offsetX, offsetY);
     if (!canDraw && mouseDown) {
       // drag mode (mouse down and can't draw)
       // find nearest drawing and it will be dragged
