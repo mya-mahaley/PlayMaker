@@ -18,6 +18,8 @@ import { Link } from "react-router-dom";
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
 // Able to drag stuff from https://jsfiddle.net/m1erickson/sEBAC
+// Draggable lines from https://stackoverflow.com/questions/5559248/how-to-create-a-draggable-line-in-html5-canvas
+// Erasing lines from https://stackoverflow.com/questions/29692134/how-to-delete-only-a-line-from-the-canvas-not-all-the-drawings
 
 function ColorButton({ value, onColorClick }) {
   const cStyle = {
@@ -65,28 +67,33 @@ export default function Play() {
   // engage draw mode (true) or drag mode (false)
   const [canDraw, setCanDraw] = useState(true);
 
-  // shapes array, keeps track of all shapes
-  const [shapes, setShapes] = useState([]);
+  // drawings array, contains shapes and lines
+  const [drawings, setDrawings] = useState([]);
 
-  // lines array, keeps track of all lines
-  const [existingLines, setExistingLines] = useState([]);
   // initial line coords, keep track of beginning of line
   const [initialLineCoords, setInitialLineCoords] = useState([0, 0]);
 
-  let lastX = 0;
-  let lastY = 0;
+  const [lastX, setLastX] = useState(0);
+  const [lastY, setLastY] = useState(0);
 
-  const addShape = (shape) => {
+  const [nearestDrawing, setNearestDrawing] = useState(-1);
+
+  const addDrawing = (drawing) => {
+    let newDrawings = drawings;
+    newDrawings.push(drawing);
+    setDrawings(newDrawings);
+  };
+
+  const addShape = (shapeType) => {
     let newShape = {
+      type: "shape",
       x: 50,
       y: 50,
-      fill: color,
-      shape: shape,
+      color: color,
+      shape: shapeType,
     };
-    let newShapes = shapes;
-    newShapes.push(newShape);
-    setShapes(newShapes);
 
+    addDrawing(newShape);
     drawShape(newShape);
   };
 
@@ -95,31 +102,16 @@ export default function Play() {
     if (shape.shape === "O") {
       contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
     }
-    contextRef.current.strokeStyle = shape.fill;
+    contextRef.current.strokeStyle = shape.color;
     contextRef.current.stroke();
   };
 
   const drawLine = (line) => {
     contextRef.current.beginPath();
-    contextRef.current.moveTo(line.start_x, line.start_y);
-    contextRef.current.lineTo(line.end_x, line.end_y);
+    contextRef.current.moveTo(line.startX, line.startY);
+    contextRef.current.lineTo(line.endX, line.endY);
     contextRef.current.strokeStyle = line.color;
     contextRef.current.stroke();
-  };
-
-  const drawAllShapes = () => {
-    for (let i = 0; i < shapes.length; i++) {
-      let shape = shapes[i];
-      drawShape(shape);
-    }
-  };
-
-  const drawAllLines = () => {
-    console.log(existingLines);
-    for (let i = 0; i < existingLines.length; i++) {
-      let line = existingLines[i];
-      drawLine(line);
-    }
   };
 
   const drawEverything = () => {
@@ -128,8 +120,59 @@ export default function Play() {
     // erases the entire canvas
     // why? so we can infinitely redraw with new coords to simulate "dragging"
     contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
-    drawAllShapes();
-    drawAllLines();
+    for (let i = 0; i < drawings.length; i++) {
+      let currentDrawing = drawings[i];
+      if (currentDrawing.type === "shape") {
+        drawShape(currentDrawing);
+      } else {
+        drawLine(currentDrawing);
+      }
+    }
+  };
+
+  // linear interpolation, needed to calculate closest distance for lines
+  const lerp = (a, b, x) => {
+    return a + x * (b - a);
+  };
+
+  // canvas doesn't recognize lines, just pixels so we have to manually find it ourselves
+  // much easier interactivity to have nearest drawing instead of precisely clicking/dragging
+  // the actual shape
+  const findNearestDrawing = (mouseX, mouseY) => {
+    let closestIndex = -1;
+    let minDistance = 1000000;
+
+    for (let i = 0; i < drawings.length; i++) {
+      let currentDrawing = drawings[i];
+      let closestX = 0,
+        closestY = 0,
+        distanceX = 0,
+        distanceY = 0;
+      if (currentDrawing.type === "shape") {
+        // shape only has to worry about center, not necessarily border
+        closestX = currentDrawing.x;
+        closestY = currentDrawing.y;
+      } else {
+        distanceX = currentDrawing.endX - currentDrawing.startX;
+        distanceY = currentDrawing.endY - currentDrawing.startY;
+        let t =
+          ((mouseX - currentDrawing.startX) * distanceX +
+            (mouseY - currentDrawing.startY) * distanceY) /
+          (distanceX * distanceX + distanceY * distanceY);
+        t = Math.max(0, Math.min(1, t)); // not sure if this line is needed
+        closestX = lerp(currentDrawing.startX, currentDrawing.endY, t);
+        closestY = lerp(currentDrawing.startY, currentDrawing.endY, t);
+      }
+      distanceX = mouseX - closestX;
+      distanceY = mouseY - closestY;
+      let distance = closestX * closestX + distanceY * distanceY;
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = i;
+      }
+    }
+
+    setNearestDrawing(closestIndex);
   };
 
   function handleColorClick(value) {
@@ -179,6 +222,7 @@ export default function Play() {
     contextRef.current = context;
   }, []);
 
+  // onMouseDown
   const startDrawing = ({ nativeEvent }) => {
     // can only draw if selected, so we can have separate drag mode
     const { offsetX, offsetY } = nativeEvent;
@@ -189,39 +233,38 @@ export default function Play() {
       contextRef.current.lineTo(offsetX, offsetY);
       contextRef.current.stroke();
       setInitialLineCoords([offsetX, offsetY]);
+    } else {
+      // drag mode
+      setLastX(offsetX);
+      setLastY(offsetY);
+      findNearestDrawing(offsetX, offsetY);
     }
-    lastX = offsetX;
-    lastY = offsetY;
     setMouseDown(true);
   };
 
+  // onMouseMove
   const draw = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
     nativeEvent.preventDefault();
     if (!canDraw && mouseDown) {
       // drag mode (mouse down and can't draw)
-      // right now it is redrawing the shapes but is not dragging it
-      for (let i = 0; i < shapes.length; i++) {
-        var shape = shapes[i];
-        drawShape(shape);
-        if (contextRef.current.isPointInPath(lastX, lastY)) {
-          shape.x += offsetX - lastX;
-          shape.y += offsetY - lastY;
-        }
-      }
-      for (let i = 0; i < existingLines.length; i++) {
-        var line = existingLines[i];
-        drawLine(line);
-        if (contextRef.current.isPointInPath(lastX, lastY)) {
-          line.start_x += offsetX - lastX;
-          line.start_y += offsetY - lastY;
-          line.end_x += offsetX - lastX;
-          line.end_y += offsetY - lastY;
-        }
+      // find nearest drawing and it will be dragged
+      let draggedDrawing = drawings[nearestDrawing];
+      if (draggedDrawing.type === "shape") {
+        draggedDrawing.x += offsetX - lastX;
+        draggedDrawing.y += offsetY - lastY;
+      } else {
+        draggedDrawing.startX += offsetX - lastX;
+        draggedDrawing.startY += offsetY - lastY;
+        draggedDrawing.endX += offsetX - lastX;
+        draggedDrawing.endY += offsetY - lastY;
       }
 
-      lastX = offsetX;
-      lastY = offsetY;
+      let newDrawings = drawings;
+      drawings[nearestDrawing] = draggedDrawing;
+      setDrawings(newDrawings);
+      setLastX(offsetX);
+      setLastY(offsetY);
       drawEverything();
     } else if (canDraw && mouseDown) {
       // paint mode (mouse down and can draw)
@@ -234,25 +277,28 @@ export default function Play() {
     }
   };
 
+  // onMouseUp, onMouseLeave
   // stop drawing, so straighten out any lines and add it to existing lines
   const stopDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
     if (canDraw && mouseDown) {
-      let current_line = {
-        start_x: initialLineCoords[0],
-        start_y: initialLineCoords[1],
-        end_x: offsetX,
-        end_y: offsetY,
+      let currentLine = {
+        type: "line",
+        startX: initialLineCoords[0],
+        startY: initialLineCoords[1],
+        endX: offsetX,
+        endY: offsetY,
         color: color,
       };
 
-      let newExistingLines = existingLines;
-      newExistingLines.push(current_line);
-      setExistingLines(newExistingLines);
-      drawEverything();
+      addDrawing(currentLine);
     }
     contextRef.current.closePath();
     setMouseDown(false);
+    setNearestDrawing(-1);
+    drawEverything();
+
+    console.log(drawings);
   };
 
   const setToDraw = () => {
@@ -302,11 +348,6 @@ export default function Play() {
             <Row className="containerBorder">
               <h3>Shapes</h3>
               <Container>
-                {/* {TEMPLATES.map((template) => (
-                  <div className="icon">
-                    <Icon draggable id={template.id} name={template.name} />
-                  </div>
-                ))} */}
                 <Button onClick={() => addShape("O")}>O</Button>
                 <Button onClick={() => addShape("X")}>X</Button>
 
