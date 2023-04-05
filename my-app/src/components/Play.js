@@ -64,8 +64,10 @@ export default function Play() {
   const contextRef = useRef(null);
 
   const [mouseDown, setMouseDown] = useState(false);
-  // engage draw mode (true) or drag mode (false)
+  // engage draw mode, drag mode, erase mode
   const [canDraw, setCanDraw] = useState(true);
+  const [canDrag, setCanDrag] = useState(false);
+  const [eraseMode, setEraseMode] = useState(false);
 
   // drawings array, contains shapes and lines
   const [drawings, setDrawings] = useState([]);
@@ -77,6 +79,23 @@ export default function Play() {
   const [lastY, setLastY] = useState(0);
 
   const [nearestDrawing, setNearestDrawing] = useState(-1);
+
+  // sets up and grabs reference to canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    // Make it visually fill the positioned parent
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    // ...then set the internal size to match
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    const context = canvas.getContext("2d");
+    context.lineCap = "round";
+    context.strokeStyle = "black";
+    context.lineWidth = 5;
+    contextRef.current = context;
+  }, []);
 
   const addDrawing = (drawing) => {
     let newDrawings = drawings;
@@ -114,7 +133,7 @@ export default function Play() {
     contextRef.current.stroke();
   };
 
-  const drawEverything = () => {
+  const drawEverything = (drawings) => {
     const canvas = canvasRef.current;
 
     // erases the entire canvas
@@ -205,29 +224,22 @@ export default function Play() {
     left: "0px",
   };
 
-  // sets up and grabs reference to canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    // Make it visually fill the positioned parent
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    // ...then set the internal size to match
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-
-    const context = canvas.getContext("2d");
-    context.lineCap = "round";
-    context.strokeStyle = "black";
-    context.lineWidth = 5;
-    contextRef.current = context;
-  }, []);
-
   // onMouseDown
   const startDrawing = ({ nativeEvent }) => {
     // can only draw if selected, so we can have separate drag mode
     const { offsetX, offsetY } = nativeEvent;
     nativeEvent.preventDefault();
-    if (canDraw) {
+    findNearestDrawing(offsetX, offsetY);
+    console.log(eraseMode);
+    if (eraseMode) {
+      // erase mode, delete the nearest drawing and redraw
+      if (nearestDrawing !== -1) {
+        setDrawings((drawings) =>
+          drawings.filter((s, i) => i !== nearestDrawing)
+        );
+        drawEverything(drawings);
+      }
+    } else if (canDraw) {
       contextRef.current.beginPath();
       contextRef.current.moveTo(offsetX, offsetY);
       contextRef.current.lineTo(offsetX, offsetY);
@@ -237,7 +249,6 @@ export default function Play() {
       // drag mode
       setLastX(offsetX);
       setLastY(offsetY);
-      findNearestDrawing(offsetX, offsetY);
     }
     setMouseDown(true);
   };
@@ -246,27 +257,32 @@ export default function Play() {
   const draw = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
     nativeEvent.preventDefault();
+    if (eraseMode) {
+      return;
+    }
     // console.log(offsetX, offsetY);
-    if (!canDraw && mouseDown) {
+    if (canDrag && mouseDown) {
       // drag mode (mouse down and can't draw)
       // find nearest drawing and it will be dragged
-      let draggedDrawing = drawings[nearestDrawing];
-      if (draggedDrawing.type === "shape") {
-        draggedDrawing.x += offsetX - lastX;
-        draggedDrawing.y += offsetY - lastY;
-      } else {
-        draggedDrawing.startX += offsetX - lastX;
-        draggedDrawing.startY += offsetY - lastY;
-        draggedDrawing.endX += offsetX - lastX;
-        draggedDrawing.endY += offsetY - lastY;
-      }
+      if (nearestDrawing !== -1) {
+        let draggedDrawing = drawings[nearestDrawing];
+        if (draggedDrawing.type === "shape") {
+          draggedDrawing.x += offsetX - lastX;
+          draggedDrawing.y += offsetY - lastY;
+        } else {
+          draggedDrawing.startX += offsetX - lastX;
+          draggedDrawing.startY += offsetY - lastY;
+          draggedDrawing.endX += offsetX - lastX;
+          draggedDrawing.endY += offsetY - lastY;
+        }
 
-      let newDrawings = drawings;
-      drawings[nearestDrawing] = draggedDrawing;
-      setDrawings(newDrawings);
-      setLastX(offsetX);
-      setLastY(offsetY);
-      drawEverything();
+        let newDrawings = drawings;
+        drawings[nearestDrawing] = draggedDrawing;
+        setDrawings(newDrawings);
+        setLastX(offsetX);
+        setLastY(offsetY);
+        drawEverything(drawings);
+      }
     } else if (canDraw && mouseDown) {
       // paint mode (mouse down and can draw)
       contextRef.current.lineTo(offsetX, offsetY);
@@ -282,6 +298,11 @@ export default function Play() {
   // stop drawing, so straighten out any lines and add it to existing lines
   const stopDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
+    contextRef.current.closePath();
+    if (eraseMode) {
+      setMouseDown(false);
+      return;
+    }
     if (canDraw && mouseDown) {
       let currentLine = {
         type: "line",
@@ -294,10 +315,9 @@ export default function Play() {
 
       addDrawing(currentLine);
     }
-    contextRef.current.closePath();
     setMouseDown(false);
     setNearestDrawing(-1);
-    drawEverything();
+    drawEverything(drawings);
 
     console.log(drawings);
   };
@@ -306,8 +326,17 @@ export default function Play() {
     contextRef.current.globalCompositeOperation = "source-over";
   };
 
-  const setToErase = () => {
-    contextRef.current.globalCompositeOperation = "destination-out";
+  const toggleMode = (mode) => {
+    setEraseMode(false);
+    setCanDraw(false);
+    setCanDrag(false);
+    if (mode === 1) {
+      setEraseMode(true);
+    } else if (mode === 2) {
+      setCanDraw(true);
+    } else {
+      setCanDrag(true);
+    }
   };
 
   return (
@@ -353,9 +382,9 @@ export default function Play() {
                 <Button onClick={() => addShape("X")}>X</Button>
 
                 <Button onClick={setToDraw}>Pen</Button>
-                <Button onClick={setToErase}>Erase</Button>
-                <Button onClick={() => setCanDraw(true)}>Draw Mode</Button>
-                <Button onClick={() => setCanDraw(false)}>Drag Mode</Button>
+                <Button onClick={() => toggleMode(1)}>Erase Mode</Button>
+                <Button onClick={() => toggleMode(2)}>Draw Mode</Button>
+                <Button onClick={() => toggleMode(3)}>Drag Mode</Button>
               </Container>
             </Row>
             <Row className="containerBorder">
