@@ -5,6 +5,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 import { useState, useRef, useEffect } from "react";
 import Notes from "./Notes.js";
 import Form from "react-bootstrap/Form";
@@ -23,7 +24,6 @@ import { cyan } from "@mui/material/colors";
 // Erasing lines from https://stackoverflow.com/questions/29692134/how-to-delete-only-a-line-from-the-canvas-not-all-the-drawings
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
 // Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
-// setlinedash
 
 function ColorButton({ value, onColorClick, selectedColor }) {
   const cStyle = {
@@ -78,6 +78,9 @@ export default function Play() {
   const contextRef = useRef(null);
 
   const [mouseDown, setMouseDown] = useState(false);
+  const [lastX, setLastX] = useState(0);
+  const [lastY, setLastY] = useState(0);
+
   // engage draw mode, drag mode, erase mode
   const [canDraw, setCanDraw] = useState(true);
   const [canDrag, setCanDrag] = useState(false);
@@ -94,10 +97,7 @@ export default function Play() {
   // initial line coords, keep track of beginning of line
   const [initialLineCoords, setInitialLineCoords] = useState([0, 0]);
 
-  const [lastX, setLastX] = useState(0);
-  const [lastY, setLastY] = useState(0);
-
-  // undo/redo stuff
+  // undo/redo arrays
   const [currentIndex, setCurrentIndex] = useState(0);
   const [canvasStates, setCanvasStates] = useState([[]]);
 
@@ -157,7 +157,7 @@ export default function Play() {
     contextRef.current.stroke();
   };
 
-  // draws routes with dashes and arrows if needed
+  // draws lines with dashes and arrows if needed
   const drawLine = (line) => {
     if (line.dash) {
       contextRef.current.setLineDash([10, 10]);
@@ -210,6 +210,10 @@ export default function Play() {
     setCurrentIndex(newIndex);
     setDrawings(canvasStates[newIndex]);
   };
+
+  // TODO: implement save function by linking with firebase
+  // store drawings into firebase in order to redraw on load
+  const save = () => {};
 
   // draws all the shapes on the canvas, updates when array of objects get updated
   useEffect(() => {
@@ -434,11 +438,14 @@ export default function Play() {
       <Container>
         <Row className="headerBorder">
           <Col className="containerBorder" xs lg="3">
-            <Link to="/account">
-              <Button>Back</Button>
-            </Link>
-            <Button onClick={() => undoAction()}>Undo</Button>
-            <Button onClick={() => redoAction()}>Redo</Button>
+            <ButtonGroup>
+              <Link to="/account">
+                <Button>Back</Button>
+              </Link>
+              <Button onClick={() => undoAction()}>Undo</Button>
+              <Button onClick={() => redoAction()}>Redo</Button>
+              <Button onClick={() => save()}>Save</Button>
+            </ButtonGroup>
           </Col>
           <Col className="containerBorder">
             <Row className="align-items-center">
@@ -470,20 +477,22 @@ export default function Play() {
             <Row className="containerBorder">
               <h3>Shapes</h3>
               <Container>
-                <Button onClick={() => addShape("O")}>O</Button>
-                <Button onClick={() => addShape("X")}>X</Button>
-                <Button onClick={() => toggleRoute(false, false)}>———</Button>
-                <Button onClick={() => toggleRoute(true, false)}>
-                  -------
-                </Button>
-                <Button onClick={() => toggleRoute(false, true)}>
-                  ——{">"}
-                </Button>
-                <Button onClick={() => toggleRoute(true, true)}>
-                  -----{">"}
-                </Button>
+                <ButtonGroup>
+                  <Button onClick={() => addShape("O")}>O</Button>
+                  <Button onClick={() => addShape("X")}>X</Button>
+                </ButtonGroup>
 
-                {/* <Button onClick={setToDraw}>Pen</Button> */}
+                <ButtonGroup>
+                  <Button onClick={() => toggleRoute(false, false)}>—</Button>
+                  <Button onClick={() => toggleRoute(true, false)}>--</Button>
+                  <Button onClick={() => toggleRoute(false, true)}>
+                    —{">"}
+                  </Button>
+                  <Button onClick={() => toggleRoute(true, true)}>
+                    --{">"}
+                  </Button>
+                </ButtonGroup>
+
                 <Button onClick={() => toggleMode(1)}>Erase Mode</Button>
                 <Button onClick={() => toggleMode(3)}>Drag Mode</Button>
               </Container>
@@ -577,6 +586,7 @@ export default function Play() {
                 <Button onClick={() => changeCurrentBackground(baseball)}>
                   Baseball
                 </Button>
+                
                 <Button onClick={() => changeCurrentBackground(blank)}>
                   Reset BG
                 </Button>
