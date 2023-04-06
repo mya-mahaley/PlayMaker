@@ -596,7 +596,12 @@ export default function Play() {
           <Col className="containerBorder">
             <canvas
               // background image
-              style={{ backgroundImage: `url(${currentBackground})` }}
+              style={{
+                backgroundImage: `url(${currentBackground})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+              }}
               className="Canvas"
               ref={canvasRef}
               onMouseDown={startDrawing}
