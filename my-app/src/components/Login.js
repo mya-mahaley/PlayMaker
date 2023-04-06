@@ -12,36 +12,24 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [signedIn, setSignedIn] = useState(false);
-  const [loginDone, setLoginDone] = useState(false);
-  const [guest, setGuest] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setSignedIn(true)
-        if(!loginDone){
-          navigate("/account");
-          setLoginDone(true)
-        }
+        navigate("/account");
         console.log("signed in");
       } else {
         console.log("not signed in");
-          navigate("/")
-          setLoginDone(false)
-          setSignedIn(false);
-        
+        navigate("/");
       }
     });
-  }, [navigate, setSignedIn, setLoginDone]);
+  }, [navigate]);
 
   function onGuestClick() {
-    setGuest(true)
     signInWithEmailAndPassword(auth, "guest@gmail.com", "123456")
       .then((userCredential) => {
         // signed in
         const user = userCredential.user;
-        console.log(user);
       })
       .catch((error) => {
         const errorCode = error.code;
