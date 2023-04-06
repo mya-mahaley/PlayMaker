@@ -14,6 +14,7 @@ import football from "../images/football_bg.png";
 import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { Link } from "react-router-dom";
+import { cyan } from "@mui/material/colors";
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
@@ -22,30 +23,42 @@ import { Link } from "react-router-dom";
 // Erasing lines from https://stackoverflow.com/questions/29692134/how-to-delete-only-a-line-from-the-canvas-not-all-the-drawings
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
 
-function ColorButton({ value, onColorClick }) {
+function ColorButton({ value, onColorClick, selectedColor}) {
   const cStyle = {
     aspectRatio: 1,
     backgroundColor: value,
+    border: "3px solid",
     borderColor: value,
   };
   if (value === "#ffffff") {
     cStyle.borderColor = "#F0F0F0";
   }
+
+  if (selectedColor === value) {
+    cStyle.borderColor = "#7DF9FF";
+  }
+
   return (
-    <Button className="rounded-circle" onClick={onColorClick} style={cStyle}>
+    <Button className="rounded-circle" 
+      onClick={onColorClick} 
+      style={cStyle}>
       &nbsp;&nbsp;
     </Button>
   );
 }
 
-function ColorPickButton({ value, onColorClick }) {
+function ColorPickButton({ value, onColorClick, selectedColor}) {
   const cStyle = {
     aspectRatio: 1,
     backgroundColor: value,
+    border: "3px solid",
     borderColor: value,
   };
   if (value === "#FFFFFF") {
     cStyle.borderColor = "#F0F0F0";
+  } 
+  if (selectedColor === value) {
+    cStyle.borderColor = "#7DF9FF";
   }
   return (
     <Button className="rounded-circle" onClick={onColorClick} style={cStyle}>
@@ -441,24 +454,28 @@ export default function Play() {
                     <ColorButton
                       value={"#F64D4D"}
                       onColorClick={() => handleColorClick("#F64D4D")}
+                      selectedColor={color}
                     ></ColorButton>
                   </Col>
                   <Col>
                     <ColorButton
                       value={"#F69E4D"}
                       onColorClick={() => handleColorClick("#F69E4D")}
+                      selectedColor={color}
                     ></ColorButton>
                   </Col>
                   <Col>
                     <ColorButton
                       value={"#F6E54D"}
                       onColorClick={() => handleColorClick("#F6E54D")}
+                      selectedColor={color}
                     ></ColorButton>
                   </Col>
                   <Col>
                     <ColorButton
                       value={"#97F64D"}
                       onColorClick={() => handleColorClick("#97F64D")}
+                      selectedColor={color}
                     ></ColorButton>
                   </Col>
                 </Row>
@@ -467,24 +484,28 @@ export default function Play() {
                     <ColorButton
                       value={"#4D86F6"}
                       onColorClick={() => handleColorClick("#4D86F6")}
+                      selectedColor={color}
                     ></ColorButton>
                   </Col>
                   <Col>
                     <ColorButton
                       value={"#000000"}
                       onColorClick={() => handleColorClick("#000000")}
+                      selectedColor={color}
                     ></ColorButton>
                   </Col>
                   <Col>
                     <ColorButton
                       value={"#ffffff"}
                       onColorClick={() => handleColorClick("#ffffff")}
+                      selectedColor={color}
                     ></ColorButton>
                   </Col>
                   <Col>
                     <ColorPickButton
                       value={pickerColor}
                       onColorClick={() => handlePickerClick()}
+                      selectedColor={color}
                     ></ColorPickButton>
                   </Col>
                   {showPicker ? (
