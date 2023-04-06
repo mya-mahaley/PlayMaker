@@ -8,8 +8,21 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { auth } from "./login/firebase";
+import { signOut } from "firebase/auth";
 
 export default function Account() {
+  const logOut = () => {
+    signOut(auth)
+      .then(() => {
+        console.log("signed out successfully");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+
   return (
     <div className="Account">
       <Container className="AccountScreen">
@@ -27,7 +40,7 @@ export default function Account() {
           </Col>
           <Col className="AccountComponent">
             <Link to="/">
-              <Button variant="contained">Logout</Button>
+              <Button variant="contained" onClick={logOut}>Logout</Button>
             </Link>
           </Col>
         </Row>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { TextField, Button } from "@mui/material";
-// import { createUserWithEmailAndPassword } from "firebase/auth";
-// import { auth } from "./firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
