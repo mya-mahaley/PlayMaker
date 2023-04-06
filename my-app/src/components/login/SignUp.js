@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { TextField, Button } from "@mui/material";
-// import { createUserWithEmailAndPassword } from "firebase/auth";
-// import { auth } from "./firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -9,24 +9,22 @@ export default function SignUp() {
   const [password2, setPassword2] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
 
-  const onSubmit = () => {
-    console.log("Signed up!");
-  };
-  // const onSubmit = async (e) => {
-  //   e.preventDefault();
 
-  //   await createUserWithEmailAndPassword(auth, email, password)
-  //     .then((userCredential) => {
-  //       // signed in
-  //       const user = userCredential.user;
-  //       console.log(user);
-  //     })
-  //     .catch((error) => {
-  //       const errorCode = error.code;
-  //       const errorMessage = error.message;
-  //       console.log(errorCode, errorMessage);
-  //     });
-  // };
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // signed in
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+      });
+  };
 
   const handleEmailChange = (event) => {
     const target = event.target;
