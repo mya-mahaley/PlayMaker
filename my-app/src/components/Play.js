@@ -22,8 +22,10 @@ import { cyan } from "@mui/material/colors";
 // Draggable lines from https://stackoverflow.com/questions/5559248/how-to-create-a-draggable-line-in-html5-canvas
 // Erasing lines from https://stackoverflow.com/questions/29692134/how-to-delete-only-a-line-from-the-canvas-not-all-the-drawings
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
+// Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
+// setlinedash
 
-function ColorButton({ value, onColorClick, selectedColor}) {
+function ColorButton({ value, onColorClick, selectedColor }) {
   const cStyle = {
     aspectRatio: 1,
     backgroundColor: value,
@@ -39,15 +41,13 @@ function ColorButton({ value, onColorClick, selectedColor}) {
   }
 
   return (
-    <Button className="rounded-circle" 
-      onClick={onColorClick} 
-      style={cStyle}>
+    <Button className="rounded-circle" onClick={onColorClick} style={cStyle}>
       &nbsp;&nbsp;
     </Button>
   );
 }
 
-function ColorPickButton({ value, onColorClick, selectedColor}) {
+function ColorPickButton({ value, onColorClick, selectedColor }) {
   const cStyle = {
     aspectRatio: 1,
     backgroundColor: value,
@@ -56,7 +56,7 @@ function ColorPickButton({ value, onColorClick, selectedColor}) {
   };
   if (value === "#FFFFFF") {
     cStyle.borderColor = "#F0F0F0";
-  } 
+  }
   if (selectedColor === value) {
     cStyle.borderColor = "#7DF9FF";
   }
@@ -82,6 +82,10 @@ export default function Play() {
   const [canDraw, setCanDraw] = useState(true);
   const [canDrag, setCanDrag] = useState(false);
   const [eraseMode, setEraseMode] = useState(false);
+
+  // route add-ons, dash/arrows
+  const [canArrow, setCanArrow] = useState(false);
+  const [canDash, setCanDash] = useState(false);
 
   // drawings array, contains shapes and lines
   const [drawings, setDrawings] = useState([]);
@@ -112,12 +116,13 @@ export default function Play() {
     context.strokeStyle = "black";
     context.lineWidth = 5;
     contextRef.current = context;
+    contextRef.current.globalCompositeOperation = "source-over";
   }, []);
 
   const addDrawing = (drawing) => {
-    setDrawings((drawings) => [...drawings, drawing]);
-    let newDrawings = drawings;
+    let newDrawings = [...drawings];
     addCanvasState([...newDrawings, drawing]);
+    setDrawings((drawings) => [...drawings, drawing]);
   };
 
   const addShape = (shapeType) => {
@@ -152,11 +157,35 @@ export default function Play() {
     contextRef.current.stroke();
   };
 
+  // draws routes with dashes and arrows if needed
   const drawLine = (line) => {
+    if (line.dash) {
+      contextRef.current.setLineDash([10, 10]);
+    } else {
+      contextRef.current.setLineDash([]);
+    }
+
     contextRef.current.beginPath();
     contextRef.current.moveTo(line.startX, line.startY);
     contextRef.current.lineTo(line.endX, line.endY);
     contextRef.current.strokeStyle = line.color;
+
+    if (line.arrow) {
+      let headlen = 10;
+      let dx = line.endX - line.startX;
+      let dy = line.endY - line.startY;
+      let angle = Math.atan2(dy, dx);
+      contextRef.current.moveTo(line.endX, line.endY);
+      contextRef.current.lineTo(
+        line.endX - headlen * Math.cos(angle - Math.PI / 6),
+        line.endY - headlen * Math.sin(angle - Math.PI / 6)
+      );
+      contextRef.current.moveTo(line.endX, line.endY);
+      contextRef.current.lineTo(
+        line.endX - headlen * Math.cos(angle + Math.PI / 6),
+        line.endY - headlen * Math.sin(angle + Math.PI / 6)
+      );
+    }
     contextRef.current.stroke();
   };
 
@@ -365,22 +394,20 @@ export default function Play() {
         endX: offsetX,
         endY: offsetY,
         color: color,
+        arrow: canArrow,
+        dash: canDash,
       };
 
       addDrawing(currentLine);
     }
     if (canDrag && mouseDown) {
       // enable undo/redo for dragging
-      let newDrawing = drawings;
-      addCanvasState(newDrawing);
-      console.log(canvasStates);
+      // let newDrawing = [...drawings];
+      // addCanvasState(newDrawing);
+      // console.log(canvasStates);
     }
     setMouseDown(false);
     findNearestDrawing(offsetX, offsetY);
-  };
-
-  const setToDraw = () => {
-    contextRef.current.globalCompositeOperation = "source-over";
   };
 
   const toggleMode = (mode) => {
@@ -394,6 +421,12 @@ export default function Play() {
     } else {
       setCanDrag(true);
     }
+  };
+
+  const toggleRoute = (mode1, mode2) => {
+    setCanDash(mode1);
+    setCanArrow(mode2);
+    toggleMode(2);
   };
 
   return (
@@ -439,10 +472,19 @@ export default function Play() {
               <Container>
                 <Button onClick={() => addShape("O")}>O</Button>
                 <Button onClick={() => addShape("X")}>X</Button>
+                <Button onClick={() => toggleRoute(false, false)}>———</Button>
+                <Button onClick={() => toggleRoute(true, false)}>
+                  -------
+                </Button>
+                <Button onClick={() => toggleRoute(false, true)}>
+                  ——{">"}
+                </Button>
+                <Button onClick={() => toggleRoute(true, true)}>
+                  -----{">"}
+                </Button>
 
                 {/* <Button onClick={setToDraw}>Pen</Button> */}
                 <Button onClick={() => toggleMode(1)}>Erase Mode</Button>
-                <Button onClick={() => toggleMode(2)}>Draw Mode</Button>
                 <Button onClick={() => toggleMode(3)}>Drag Mode</Button>
               </Container>
             </Row>
