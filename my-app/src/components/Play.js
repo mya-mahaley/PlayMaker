@@ -20,6 +20,7 @@ import { Link } from "react-router-dom";
 // Able to drag stuff from https://jsfiddle.net/m1erickson/sEBAC
 // Draggable lines from https://stackoverflow.com/questions/5559248/how-to-create-a-draggable-line-in-html5-canvas
 // Erasing lines from https://stackoverflow.com/questions/29692134/how-to-delete-only-a-line-from-the-canvas-not-all-the-drawings
+// Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
 
 function ColorButton({ value, onColorClick }) {
   const cStyle = {
@@ -71,6 +72,7 @@ export default function Play() {
 
   // drawings array, contains shapes and lines
   const [drawings, setDrawings] = useState([]);
+  const [nearestDrawing, setNearestDrawing] = useState(-1);
 
   // initial line coords, keep track of beginning of line
   const [initialLineCoords, setInitialLineCoords] = useState([0, 0]);
@@ -78,7 +80,9 @@ export default function Play() {
   const [lastX, setLastX] = useState(0);
   const [lastY, setLastY] = useState(0);
 
-  const [nearestDrawing, setNearestDrawing] = useState(-1);
+  // undo/redo stuff
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [canvasStates, setCanvasStates] = useState([[]]);
 
   // sets up and grabs reference to canvas
   useEffect(() => {
@@ -99,6 +103,8 @@ export default function Play() {
 
   const addDrawing = (drawing) => {
     setDrawings((drawings) => [...drawings, drawing]);
+    let newDrawings = drawings;
+    addCanvasState([...newDrawings, drawing]);
   };
 
   const addShape = (shapeType) => {
@@ -115,11 +121,21 @@ export default function Play() {
   };
 
   const drawShape = (shape) => {
+    contextRef.current.strokeStyle = shape.color;
     contextRef.current.beginPath();
     if (shape.shape === "O") {
       contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
+    } else {
+      contextRef.current.beginPath();
+      contextRef.current.moveTo(shape.x - 20, shape.y - 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y + 20);
+      contextRef.current.stroke();
+      contextRef.current.closePath();
+
+      contextRef.current.beginPath();
+      contextRef.current.moveTo(shape.x - 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y - 20);
     }
-    contextRef.current.strokeStyle = shape.color;
     contextRef.current.stroke();
   };
 
@@ -131,11 +147,34 @@ export default function Play() {
     contextRef.current.stroke();
   };
 
+  const addCanvasState = (currentDrawing) => {
+    // remove all future (redo) states
+    let canvasState = [
+      ...canvasStates.slice(0, currentIndex + 1),
+      currentDrawing,
+    ];
+    setCanvasStates(canvasState);
+    setCurrentIndex(canvasState.length - 1);
+  };
+
+  const undoAction = () => {
+    let newIndex = Math.max(0, currentIndex - 1);
+    setCurrentIndex(newIndex);
+    setDrawings(canvasStates[newIndex]);
+  };
+
+  const redoAction = () => {
+    let newIndex = Math.min(canvasStates.length - 1, currentIndex + 1);
+    setCurrentIndex(newIndex);
+    setDrawings(canvasStates[newIndex]);
+  };
+
   // draws all the shapes on the canvas, updates when array of objects get updated
   useEffect(() => {
     const canvas = canvasRef.current;
-    console.log("erasing canvas!");
-    console.log(drawings);
+    // console.log("erasing canvas!");
+    // console.log(drawings);
+
     // erases the entire canvas
     // why? so we can infinitely redraw with new coords to simulate "dragging"
     contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
@@ -230,15 +269,15 @@ export default function Play() {
     const { offsetX, offsetY } = nativeEvent;
     nativeEvent.preventDefault();
     findNearestDrawing(offsetX, offsetY);
-    console.log(eraseMode);
     if (eraseMode) {
       // erase mode, delete the nearest drawing and redraw
-      console.log(nearestDrawing);
       if (nearestDrawing !== -1) {
-        setDrawings([
+        let newDrawings = [
           ...drawings.slice(0, nearestDrawing),
           ...drawings.slice(nearestDrawing + 1, drawings.length),
-        ]);
+        ];
+        setDrawings(newDrawings);
+        addCanvasState(newDrawings);
       }
     } else if (canDraw) {
       contextRef.current.beginPath();
@@ -263,7 +302,6 @@ export default function Play() {
       findNearestDrawing(offsetX, offsetY);
       return;
     }
-    // console.log(offsetX, offsetY);
     if (canDrag && mouseDown) {
       // drag mode (mouse down and can't draw)
       // find nearest drawing and it will be dragged
@@ -318,10 +356,14 @@ export default function Play() {
 
       addDrawing(currentLine);
     }
+    if (canDrag && mouseDown) {
+      // enable undo/redo for dragging
+      let newDrawing = drawings;
+      addCanvasState(newDrawing);
+      console.log(canvasStates);
+    }
     setMouseDown(false);
     findNearestDrawing(offsetX, offsetY);
-
-    console.log(drawings);
   };
 
   const setToDraw = () => {
@@ -349,6 +391,8 @@ export default function Play() {
             <Link to="/account">
               <Button>Back</Button>
             </Link>
+            <Button onClick={() => undoAction()}>Undo</Button>
+            <Button onClick={() => redoAction()}>Redo</Button>
           </Col>
           <Col className="containerBorder">
             <Row className="align-items-center">
@@ -383,7 +427,7 @@ export default function Play() {
                 <Button onClick={() => addShape("O")}>O</Button>
                 <Button onClick={() => addShape("X")}>X</Button>
 
-                <Button onClick={setToDraw}>Pen</Button>
+                {/* <Button onClick={setToDraw}>Pen</Button> */}
                 <Button onClick={() => toggleMode(1)}>Erase Mode</Button>
                 <Button onClick={() => toggleMode(2)}>Draw Mode</Button>
                 <Button onClick={() => toggleMode(3)}>Drag Mode</Button>
