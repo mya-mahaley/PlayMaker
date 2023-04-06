@@ -98,9 +98,7 @@ export default function Play() {
   }, []);
 
   const addDrawing = (drawing) => {
-    let newDrawings = drawings;
-    newDrawings.push(drawing);
-    setDrawings(newDrawings);
+    setDrawings((drawings) => [...drawings, drawing]);
   };
 
   const addShape = (shapeType) => {
@@ -133,9 +131,11 @@ export default function Play() {
     contextRef.current.stroke();
   };
 
-  const drawEverything = (drawings) => {
+  // draws all the shapes on the canvas, updates when array of objects get updated
+  useEffect(() => {
     const canvas = canvasRef.current;
-
+    console.log("erasing canvas!");
+    console.log(drawings);
     // erases the entire canvas
     // why? so we can infinitely redraw with new coords to simulate "dragging"
     contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
@@ -147,7 +147,7 @@ export default function Play() {
         drawLine(currentDrawing);
       }
     }
-  };
+  }, [drawings]);
 
   // linear interpolation, needed to calculate closest distance for lines
   const lerp = (a, b, x) => {
@@ -233,11 +233,12 @@ export default function Play() {
     console.log(eraseMode);
     if (eraseMode) {
       // erase mode, delete the nearest drawing and redraw
+      console.log(nearestDrawing);
       if (nearestDrawing !== -1) {
-        setDrawings((drawings) =>
-          drawings.filter((s, i) => i !== nearestDrawing)
-        );
-        drawEverything(drawings);
+        setDrawings([
+          ...drawings.slice(0, nearestDrawing),
+          ...drawings.slice(nearestDrawing + 1, drawings.length),
+        ]);
       }
     } else if (canDraw) {
       contextRef.current.beginPath();
@@ -258,6 +259,8 @@ export default function Play() {
     const { offsetX, offsetY } = nativeEvent;
     nativeEvent.preventDefault();
     if (eraseMode) {
+      // why? because it's not updating fast enough apparently
+      findNearestDrawing(offsetX, offsetY);
       return;
     }
     // console.log(offsetX, offsetY);
@@ -276,12 +279,12 @@ export default function Play() {
           draggedDrawing.endY += offsetY - lastY;
         }
 
-        let newDrawings = drawings;
-        drawings[nearestDrawing] = draggedDrawing;
+        let newDrawings = [...drawings];
+        newDrawings[nearestDrawing] = draggedDrawing;
         setDrawings(newDrawings);
         setLastX(offsetX);
         setLastY(offsetY);
-        drawEverything(drawings);
+        // drawEverything(drawings);
       }
     } else if (canDraw && mouseDown) {
       // paint mode (mouse down and can draw)
@@ -316,8 +319,7 @@ export default function Play() {
       addDrawing(currentLine);
     }
     setMouseDown(false);
-    setNearestDrawing(-1);
-    drawEverything(drawings);
+    findNearestDrawing(offsetX, offsetY);
 
     console.log(drawings);
   };
