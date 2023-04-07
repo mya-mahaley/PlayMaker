@@ -10,6 +10,7 @@ import Col from "react-bootstrap/Col";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { auth } from "./login/firebase";
 import { signOut } from "firebase/auth";
+import MyPlays from "./account/MyPlays"
 
 export default function Account() {
   const logOut = () => {
@@ -67,9 +68,7 @@ export default function Account() {
               </center>
             </Row>
             <Row>
-              <Col className="AccountComponent">Play 1</Col>
-              <Col className="AccountComponent">Play 2</Col>
-              <Col className="AccountComponent">Play 3</Col>
+              <MyPlays></MyPlays>
             </Row>
             <Row>
               <Link to="/play">

@@ -5,7 +5,7 @@ import { Button } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import SignIn from "./login/SignIn";
 import SignUp from "./login/SignUp";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { auth } from "./login/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -30,6 +30,7 @@ export default function Login() {
       .then((userCredential) => {
         // signed in
         const user = userCredential.user;
+        console.log(user)
       })
       .catch((error) => {
         const errorCode = error.code;
