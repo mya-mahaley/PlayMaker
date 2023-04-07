@@ -78,7 +78,7 @@ export default function Play() {
   const [currentBackground, changeCurrentBackground] = useState(blank);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
-  const userID = auth.currentUser.uid;
+  //const userID = auth.currentUser.uid;
 
   const [mouseDown, setMouseDown] = useState(false);
   // engage draw mode, drag mode, erase mode

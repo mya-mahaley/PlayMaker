@@ -24,6 +24,7 @@ export default function SignUp() {
         console.log(errorCode, errorMessage);
       });
   };
+  
 
   const handleEmailChange = (event) => {
     const target = event.target;

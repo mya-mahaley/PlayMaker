@@ -3,6 +3,7 @@ import logo from "../images/PlayMakerLogo.png";
 import React from "react";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
+import { useState } from "react";
 import TextField from "@mui/material/TextField";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -13,7 +14,10 @@ import { auth } from "./login/firebase";
 import { signOut } from "firebase/auth";
 import MyPlays from "./account/MyPlays"
 
+const databaseURL = process.env.REACT_APP_DATABASE_URL
 export default function Account() {
+  const [playCount, setPlayCount] = useState(0);
+  const [playList, setPlayList] = useState([]);
   const logOut = () => {
     signOut(auth)
       .then(() => {
@@ -23,6 +27,50 @@ export default function Account() {
         console.log(error);
       });
   };
+
+  const addPlay = async () => {
+    const userID = auth.currentUser.uid
+    getPlayCount()
+    if (userID) {
+      const data = {
+        playCount: playCount + 1,
+      };
+      
+      return fetch(`${databaseURL + "users/" + userID}.json`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (res.status !== 200) {
+          console.log("There was an error.");
+        } else {
+        }
+      });
+    }
+    setPlayCount(playCount + 1)
+  }
+
+  const getPlayCount = async () => {
+    const userID = auth.currentUser.uid
+    if (userID) {
+      fetch(`${databaseURL}users/${userID}.json`)
+          .then((res) => {
+            console.log("RES");
+            console.log(res);
+            if (res.status !== 200) {
+              console.log("There was an error: " + res.statusText);
+              return;
+            } else {
+              return res.json();
+            }
+          }).then((res) => {
+            if (res) {
+              setPlayCount(res.playCount); 
+            } else {
+             
+            }
+          });
+    }
+  }
 
 
   return (
@@ -85,7 +133,7 @@ export default function Account() {
           </Row>
           <Row>
             <Link to="/play">
-              <Button variant="contained">Create New Play</Button>
+              <Button variant="contained" onClick={addPlay}>Create New Play</Button>
             </Link>
           </Row>
         </Col>
