@@ -5,6 +5,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 import { useState, useRef, useEffect } from "react";
 import Notes from "./Notes.js";
 import Form from "react-bootstrap/Form";
@@ -23,8 +24,10 @@ import { auth } from "./login/firebase";
 // Draggable lines from https://stackoverflow.com/questions/5559248/how-to-create-a-draggable-line-in-html5-canvas
 // Erasing lines from https://stackoverflow.com/questions/29692134/how-to-delete-only-a-line-from-the-canvas-not-all-the-drawings
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
+// Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
 
 const databaseURL = process.env.REACT_APP_DATABASE_URL
+
 function ColorButton({ value, onColorClick, selectedColor}) {
   const cStyle = {
     aspectRatio: 1,
@@ -41,15 +44,13 @@ function ColorButton({ value, onColorClick, selectedColor}) {
   }
 
   return (
-    <Button className="rounded-circle" 
-      onClick={onColorClick} 
-      style={cStyle}>
+    <Button className="rounded-circle" onClick={onColorClick} style={cStyle}>
       &nbsp;&nbsp;
     </Button>
   );
 }
 
-function ColorPickButton({ value, onColorClick, selectedColor}) {
+function ColorPickButton({ value, onColorClick, selectedColor }) {
   const cStyle = {
     aspectRatio: 1,
     backgroundColor: value,
@@ -58,7 +59,7 @@ function ColorPickButton({ value, onColorClick, selectedColor}) {
   };
   if (value === "#FFFFFF") {
     cStyle.borderColor = "#F0F0F0";
-  } 
+  }
   if (selectedColor === value) {
     cStyle.borderColor = "#7DF9FF";
   }
@@ -81,10 +82,17 @@ export default function Play() {
   //const userID = auth.currentUser.uid;
 
   const [mouseDown, setMouseDown] = useState(false);
+  const [lastX, setLastX] = useState(0);
+  const [lastY, setLastY] = useState(0);
+
   // engage draw mode, drag mode, erase mode
   const [canDraw, setCanDraw] = useState(true);
   const [canDrag, setCanDrag] = useState(false);
   const [eraseMode, setEraseMode] = useState(false);
+
+  // route add-ons, dash/arrows
+  const [canArrow, setCanArrow] = useState(false);
+  const [canDash, setCanDash] = useState(false);
 
   // drawings array, contains shapes and lines
   const [drawings, setDrawings] = useState([]);
@@ -93,10 +101,7 @@ export default function Play() {
   // initial line coords, keep track of beginning of line
   const [initialLineCoords, setInitialLineCoords] = useState([0, 0]);
 
-  const [lastX, setLastX] = useState(0);
-  const [lastY, setLastY] = useState(0);
-
-  // undo/redo stuff
+  // undo/redo arrays
   const [currentIndex, setCurrentIndex] = useState(0);
   const [canvasStates, setCanvasStates] = useState([[]]);
 
@@ -115,6 +120,7 @@ export default function Play() {
     context.strokeStyle = "black";
     context.lineWidth = 5;
     contextRef.current = context;
+    contextRef.current.globalCompositeOperation = "source-over";
   }, []);
 
 
@@ -208,9 +214,9 @@ export default function Play() {
     };*/
 
   const addDrawing = (drawing) => {
-    setDrawings((drawings) => [...drawings, drawing]);
-    let newDrawings = drawings;
+    let newDrawings = [...drawings];
     addCanvasState([...newDrawings, drawing]);
+    setDrawings((drawings) => [...drawings, drawing]);
   };
 
   const addShape = (shapeType) => {
@@ -245,11 +251,35 @@ export default function Play() {
     contextRef.current.stroke();
   };
 
+  // draws lines with dashes and arrows if needed
   const drawLine = (line) => {
+    if (line.dash) {
+      contextRef.current.setLineDash([10, 10]);
+    } else {
+      contextRef.current.setLineDash([]);
+    }
+
     contextRef.current.beginPath();
     contextRef.current.moveTo(line.startX, line.startY);
     contextRef.current.lineTo(line.endX, line.endY);
     contextRef.current.strokeStyle = line.color;
+
+    if (line.arrow) {
+      let headlen = 10;
+      let dx = line.endX - line.startX;
+      let dy = line.endY - line.startY;
+      let angle = Math.atan2(dy, dx);
+      contextRef.current.moveTo(line.endX, line.endY);
+      contextRef.current.lineTo(
+        line.endX - headlen * Math.cos(angle - Math.PI / 6),
+        line.endY - headlen * Math.sin(angle - Math.PI / 6)
+      );
+      contextRef.current.moveTo(line.endX, line.endY);
+      contextRef.current.lineTo(
+        line.endX - headlen * Math.cos(angle + Math.PI / 6),
+        line.endY - headlen * Math.sin(angle + Math.PI / 6)
+      );
+    }
     contextRef.current.stroke();
   };
 
@@ -274,6 +304,10 @@ export default function Play() {
     setCurrentIndex(newIndex);
     setDrawings(canvasStates[newIndex]);
   };
+
+  // TODO: implement save function by linking with firebase
+  // store drawings into firebase in order to redraw on load
+  const save = () => {};
 
   // draws all the shapes on the canvas, updates when array of objects get updated
   useEffect(() => {
@@ -458,22 +492,20 @@ export default function Play() {
         endX: offsetX,
         endY: offsetY,
         color: color,
+        arrow: canArrow,
+        dash: canDash,
       };
 
       addDrawing(currentLine);
     }
     if (canDrag && mouseDown) {
       // enable undo/redo for dragging
-      let newDrawing = drawings;
-      addCanvasState(newDrawing);
-      console.log(canvasStates);
+      // let newDrawing = [...drawings];
+      // addCanvasState(newDrawing);
+      // console.log(canvasStates);
     }
     setMouseDown(false);
     findNearestDrawing(offsetX, offsetY);
-  };
-
-  const setToDraw = () => {
-    contextRef.current.globalCompositeOperation = "source-over";
   };
 
   const toggleMode = (mode) => {
@@ -489,17 +521,25 @@ export default function Play() {
     }
   };
 
+  const toggleRoute = (mode1, mode2) => {
+    setCanDash(mode1);
+    setCanArrow(mode2);
+    toggleMode(2);
+  };
+
   return (
     <div>
       <Container>
         <Row className="headerBorder">
           <Col className="containerBorder" xs lg="3">
-            <Link to="/account">
-              <Button>Back</Button>
-            </Link>
-            <Button onClick={() => undoAction()}>Undo</Button>
-            <Button onClick={() => redoAction()}>Redo</Button>
-            <Button onClick={() => sendData()}>Save</Button>
+            <ButtonGroup>
+              <Link to="/account">
+                <Button>Back</Button>
+              </Link>
+              <Button onClick={() => undoAction()}>Undo</Button>
+              <Button onClick={() => redoAction()}>Redo</Button>
+              <Button onClick={() => sendData()}>Save</Button>
+            </ButtonGroup>
           </Col>
           <Col className="containerBorder">
             <Row className="align-items-center">
@@ -531,12 +571,23 @@ export default function Play() {
             <Row className="containerBorder">
               <h3>Shapes</h3>
               <Container>
-                <Button onClick={() => addShape("O")}>O</Button>
-                <Button onClick={() => addShape("X")}>X</Button>
+                <ButtonGroup>
+                  <Button onClick={() => addShape("O")}>O</Button>
+                  <Button onClick={() => addShape("X")}>X</Button>
+                </ButtonGroup>
 
-                {/* <Button onClick={setToDraw}>Pen</Button> */}
+                <ButtonGroup>
+                  <Button onClick={() => toggleRoute(false, false)}>—</Button>
+                  <Button onClick={() => toggleRoute(true, false)}>--</Button>
+                  <Button onClick={() => toggleRoute(false, true)}>
+                    —{">"}
+                  </Button>
+                  <Button onClick={() => toggleRoute(true, true)}>
+                    --{">"}
+                  </Button>
+                </ButtonGroup>
+
                 <Button onClick={() => toggleMode(1)}>Erase Mode</Button>
-                <Button onClick={() => toggleMode(2)}>Draw Mode</Button>
                 <Button onClick={() => toggleMode(3)}>Drag Mode</Button>
               </Container>
             </Row>
@@ -629,6 +680,7 @@ export default function Play() {
                 <Button onClick={() => changeCurrentBackground(baseball)}>
                   Baseball
                 </Button>
+                
                 <Button onClick={() => changeCurrentBackground(blank)}>
                   Reset BG
                 </Button>
@@ -648,7 +700,12 @@ export default function Play() {
           <Col className="containerBorder">
             <canvas
               // background image
-              style={{ backgroundImage: `url(${currentBackground})` }}
+              style={{
+                backgroundImage: `url(${currentBackground})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+              }}
               className="Canvas"
               ref={canvasRef}
               onMouseDown={startDrawing}
