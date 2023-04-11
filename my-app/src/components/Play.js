@@ -15,6 +15,7 @@ import football from "../images/football_bg.png";
 import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { Link } from "react-router-dom";
+import { auth } from "./login/firebase";
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
@@ -24,7 +25,9 @@ import { Link } from "react-router-dom";
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
 // Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
 
-function ColorButton({ value, onColorClick, selectedColor }) {
+const databaseURL = process.env.REACT_APP_DATABASE_URL
+
+function ColorButton({ value, onColorClick, selectedColor}) {
   const cStyle = {
     aspectRatio: 1,
     backgroundColor: value,
@@ -75,6 +78,7 @@ export default function Play() {
   const [currentBackground, changeCurrentBackground] = useState(blank);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+  //const userID = auth.currentUser.uid;
 
   const [mouseDown, setMouseDown] = useState(false);
   const [lastX, setLastX] = useState(0);
@@ -117,6 +121,96 @@ export default function Play() {
     contextRef.current = context;
     contextRef.current.globalCompositeOperation = "source-over";
   }, []);
+
+
+  const sendData = () => {
+    /*if (userID) {
+      fetch(`${databaseURL}/users/${userId}/${title}.json`)
+        .then((res) => {
+          if (res.status !== 200) {
+            console.log("Error retrieving list: " + res.statusText);
+          } else {
+            return res.json();
+          }
+        })
+        .then((res) => {
+          if (res) {
+            // add item into list
+            updateNoteData(res);
+          } else {
+            // empty list, must create a new array to put it in
+            addNoteData();
+          }
+        });*/
+  }
+
+    /*const updateNoteData = (currentDrawings) => {
+      if (userID) {
+        const data = {
+          drawings: currentDrawings,
+        };
+        return fetch(`${databaseURL}/users/${userID}/.json`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        }).then((res) => {
+          if (res.status !== 200) {
+            console.log("Error updating currentList.");
+          } else {
+            // re-update the current list on the screen
+            getData(userName);
+          }
+        });
+      }
+    };
+  
+    const addNoteData = () => {
+      if (userID) {
+        const data = {
+          drawings: currentDrawings,
+        };
+        return fetch(`${databaseURL}/users/${userID}/.json`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }).then((res) => {
+          if (res.status !== 200) {
+            console.log("There was an error.");
+          } else {
+            // display current list on screen
+            getNoteData(userName);
+          }
+        });
+      }
+    };
+  
+    const getNoteData = async (userName) => {
+      if (userID) {
+        console.log(userName);
+        fetch(`${databaseURL}/users/${userName}/shopping_list.json`)
+          .then((res) => {
+            console.log(`${databaseURL}/users/${userName}/shopping_list.json`);
+            console.log(res);
+            if (res.status !== 200) {
+              console.log("There was an error: " + res.statusText);
+              // throw new Error(res.statusText);
+              return;
+            } else {
+              console.log("Successfully retrieved the data");
+              return res.json();
+            }
+          })
+          .then((res) => {
+            if (res) {
+              console.log(res);
+              setGroceryList(res);
+            } else {
+              // no shopping list, add some items!
+              setGroceryList(null);
+            }
+            // clear textbox for item
+            setNewItem("");
+          });
+      }
+    };*/
 
   const addDrawing = (drawing) => {
     let newDrawings = [...drawings];
@@ -443,7 +537,7 @@ export default function Play() {
               </Link>
               <Button onClick={() => undoAction()}>Undo</Button>
               <Button onClick={() => redoAction()}>Redo</Button>
-              <Button onClick={() => save()}>Save</Button>
+              <Button onClick={() => sendData()}>Save</Button>
             </ButtonGroup>
           </Col>
           <Col className="containerBorder">
