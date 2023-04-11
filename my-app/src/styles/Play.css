@@ -14,6 +14,7 @@
 .Canvas {
   border: 2px;
   border-style: solid;
+  touch-action: none;
 }
 
 .NotesButton {

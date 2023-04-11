@@ -15,7 +15,6 @@ import football from "../images/football_bg.png";
 import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { Link } from "react-router-dom";
-import { cyan } from "@mui/material/colors";
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
@@ -614,10 +613,10 @@ export default function Play() {
               }}
               className="Canvas"
               ref={canvasRef}
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={stopDrawing}
-              onMouseLeave={stopDrawing}
+              onPointerDown={startDrawing}
+              onPointerMove={draw}
+              onPointerUp={stopDrawing}
+              onPointerOut={stopDrawing}
             ></canvas>
           </Col>
         </Row>
