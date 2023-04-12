@@ -8,7 +8,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
-
+  const databaseURL = process.env.REACT_APP_DATABASE_URL
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -16,6 +16,7 @@ export default function SignUp() {
       .then((userCredential) => {
         // signed in
         const user = userCredential.user;
+        addUser(user.uid)
         console.log(user);
       })
       .catch((error) => {
@@ -24,6 +25,26 @@ export default function SignUp() {
         console.log(errorCode, errorMessage);
       });
   };
+
+  const addUser = async (userID) => {
+    if (userID) {
+      const data = {
+        playCount: 0,
+        playIDList: [""]
+      };
+      return fetch(`${databaseURL + "users/" + userID}.json`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (res.status !== 200) {
+          console.log("There was an error.");
+        } else {
+          // display current list on screen
+          //getNoteData(userName);
+        }
+      });
+    }
+  }
   
 
   const handleEmailChange = (event) => {

@@ -20,9 +20,9 @@ export default function Login() {
       if (user) {
         console.log(user.uid)
         getUser(user.uid)
-        if(!userData) {
+        /*if(!userData) {
           addUser(user.uid)
-        }
+        }*/
         navigate("/account");
         console.log("signed in");
       } else {
@@ -74,6 +74,7 @@ export default function Login() {
     if (userID) {
       const data = {
         playCount: 0,
+        playIDList: [""]
       };
       return fetch(`${databaseURL + "users/" + userID}.json`, {
         method: "PUT",

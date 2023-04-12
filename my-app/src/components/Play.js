@@ -14,6 +14,7 @@ import blank from "../images/blank_bg.jpg";
 import football from "../images/football_bg.png";
 import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
+import { useLocation, useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom";
 import { cyan } from "@mui/material/colors";
 import { auth } from "./login/firebase";
@@ -73,12 +74,23 @@ function ColorPickButton({ value, onColorClick, selectedColor }) {
 export default function Play() {
   const [showNotes, setShowNotes] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
-  const [title, setTitle] = useState("Play");
+  
   const [color, setColor] = useState("#000000");
   const [pickerColor, setPickerColor] = useState("#DD22BD");
   const [currentBackground, changeCurrentBackground] = useState(blank);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+  const location = useLocation()
+  const navigate = useNavigate()
+  const playID = location.state?.playID
+  const playTitle = location.state ? location.state?.playTitle : "Play"
+  const [title, setTitle] = useState(playTitle);
+  const [savedTime, setSavedTime] = useState("Not Saved")
+  const isNewPlay = location.state?.isNewPlay
+  console.log(location)
+  console.log(playID)
+  console.log(playTitle)
+  console.log(isNewPlay)
   //const userID = auth.currentUser.uid;
 
   const [mouseDown, setMouseDown] = useState(false);
@@ -121,97 +133,44 @@ export default function Play() {
     context.lineWidth = 5;
     contextRef.current = context;
     contextRef.current.globalCompositeOperation = "source-over";
+
+    if(!isNewPlay){
+      loadPlay()
+    }
   }, []);
 
-
-  const sendData = () => {
-    /*if (userID) {
-      fetch(`${databaseURL}/users/${userId}/${title}.json`)
-        .then((res) => {
-          if (res.status !== 200) {
-            console.log("Error retrieving list: " + res.statusText);
-          } else {
-            return res.json();
-          }
-        })
-        .then((res) => {
-          if (res) {
-            // add item into list
-            updateNoteData(res);
-          } else {
-            // empty list, must create a new array to put it in
-            addNoteData();
-          }
-        });*/
-  }
-
-    /*const updateNoteData = (currentDrawings) => {
-      if (userID) {
-        const data = {
-          drawings: currentDrawings,
-        };
-        return fetch(`${databaseURL}/users/${userID}/.json`, {
-          method: "PATCH",
-          body: JSON.stringify(data),
-        }).then((res) => {
-          if (res.status !== 200) {
-            console.log("Error updating currentList.");
-          } else {
-            // re-update the current list on the screen
-            getData(userName);
-          }
-        });
-      }
-    };
-  
-    const addNoteData = () => {
-      if (userID) {
-        const data = {
-          drawings: currentDrawings,
-        };
-        return fetch(`${databaseURL}/users/${userID}/.json`, {
-          method: "PUT",
-          body: JSON.stringify(data),
-        }).then((res) => {
-          if (res.status !== 200) {
-            console.log("There was an error.");
-          } else {
-            // display current list on screen
-            getNoteData(userName);
-          }
-        });
-      }
-    };
-  
-    const getNoteData = async (userName) => {
-      if (userID) {
-        console.log(userName);
-        fetch(`${databaseURL}/users/${userName}/shopping_list.json`)
+  const loadPlay = async () => {
+    //const userID = auth.currentUser.uid
+    if (auth.currentUser) {
+      // Data for new Play
+      const userID = auth.currentUser.uid
+      fetch(`${databaseURL}users/${userID}/${playID}.json`)
           .then((res) => {
-            console.log(`${databaseURL}/users/${userName}/shopping_list.json`);
+            console.log("RES");
             console.log(res);
             if (res.status !== 200) {
               console.log("There was an error: " + res.statusText);
-              // throw new Error(res.statusText);
               return;
             } else {
-              console.log("Successfully retrieved the data");
               return res.json();
             }
-          })
-          .then((res) => {
+          }).then((res) => {
             if (res) {
-              console.log(res);
-              setGroceryList(res);
+              console.log("get play count" + res.playCount)
+              if(res.drawings){
+                setDrawings(res.drawings)
+              } else {
+                setDrawings([])
+              }
+              
+              setTitle(res.title)
             } else {
-              // no shopping list, add some items!
-              setGroceryList(null);
+              console.log("erroooorrrr loading")
             }
-            // clear textbox for item
-            setNewItem("");
           });
-      }
-    };*/
+    }
+  };
+
 
   const addDrawing = (drawing) => {
     let newDrawings = [...drawings];
@@ -307,7 +266,53 @@ export default function Play() {
 
   // TODO: implement save function by linking with firebase
   // store drawings into firebase in order to redraw on load
-  const save = () => {};
+  const save = async () => {
+    
+    //const userID = auth.currentUser.uid
+    if (auth.currentUser) {
+      // Data for new Play
+      const userID = auth.currentUser.uid
+      const data = {
+        title: title,
+        drawings: drawings
+      };
+
+      //Create new play in DB, then navigate to the play page
+      return fetch(`${databaseURL + "users/" + userID + "/" + playID}.json`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (res.status !== 200) {
+          console.log("There was an error.");
+          return;
+        } else {
+          const today = new Date()
+          let hours = today.getHours()
+          let mins = today.getMinutes()
+          let suffix = "AM"
+          if(hours % 12 > 0 || hours === 12){
+            hours= hours % 12
+            suffix = "PM"
+          }
+          if(mins < 10){
+            mins = "0" + mins
+          }
+          const time = today.getMonth() + "/" + today.getDate() + ", " + hours + ':' + mins;
+          setSavedTime(time)
+          console.log("play saved successfully")
+
+        }
+      })
+    }
+  };
+
+  const back = async () => {
+    save().then(navigate("\account"))
+  }
+
+
+
+
 
   // draws all the shapes on the canvas, updates when array of objects get updated
   useEffect(() => {
@@ -534,11 +539,11 @@ export default function Play() {
           <Col className="containerBorder" xs lg="3">
             <ButtonGroup>
               <Link to="/account">
-                <Button>Back</Button>
+              <Button onClick={() => back()}>Back</Button>
               </Link>
               <Button onClick={() => undoAction()}>Undo</Button>
               <Button onClick={() => redoAction()}>Redo</Button>
-              <Button onClick={() => sendData()}>Save</Button>
+              <Button onClick={() => save()}>Save</Button>
             </ButtonGroup>
           </Col>
           <Col className="containerBorder">
@@ -563,7 +568,7 @@ export default function Play() {
           </Col>
           <Col className="containerBorder" xs lg="2">
             <Row>User: Guest</Row>
-            <Row>Saved: Not Saved</Row>
+            <Row>Saved: {savedTime}</Row>
           </Col>
         </Row>
         <Row>
