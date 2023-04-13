@@ -17,7 +17,8 @@ import baseball from "../images/baseball_bg.jpg";
 import { useLocation, useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom";
 import { cyan } from "@mui/material/colors";
-import { auth } from "./login/firebase";
+import { auth, storage } from "./login/firebase";
+import {ref, uploadBytes, getDownloadURL } from "firebase/storage"
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
@@ -27,6 +28,8 @@ import { auth } from "./login/firebase";
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
 // Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
 
+
+// Upload play preview https://www.makeuseof.com/upload-files-to-firebase-using-reactjs/ 
 const databaseURL = process.env.REACT_APP_DATABASE_URL
 
 function ColorButton({ value, onColorClick, selectedColor}) {
@@ -91,6 +94,9 @@ export default function Play() {
   console.log(playID)
   console.log(playTitle)
   console.log(isNewPlay)
+
+ 
+  
   //const userID = auth.currentUser.uid;
 
   const [mouseDown, setMouseDown] = useState(false);
@@ -139,6 +145,14 @@ export default function Play() {
     }
   }, []);
 
+  const onChange = (event) => {
+    // data for submit
+    console.log(URL.createObjectURL(event.target.files[0]));
+    let bgUrl = URL.createObjectURL(event.target.files[0]);
+
+    changeCurrentBackground(bgUrl);
+  };
+
   const loadPlay = async () => {
     //const userID = auth.currentUser.uid
     if (auth.currentUser) {
@@ -170,6 +184,74 @@ export default function Play() {
           });
     }
   };
+
+  function uploadCanvas() {
+    const canvas = canvasRef.current
+    const blob = canvas.toBlob()
+    console.log(canvas);
+    canvas.toBlob(function(blob){
+      var image = new Image();
+      image.src = blob;
+      const userID = auth.currentUser.uid
+      const storageRef = ref(storage, userID + "/" +  playID + "/preview");
+
+      uploadBytes(storageRef, image).then((snapshot) => {
+        console.log('Uploaded a blob or file!');
+      });
+      
+    }); 
+  }
+
+  /*function uploadCanvas() {
+    const file = canvasRef.current.toDataURL('image/jpeg')
+    console.log(file)
+     //TO DO: CHANGE THIS STUFF
+    const metadata = {
+      contentType: 'image/jpeg'
+    };
+    const userID = auth.currentUser.uid
+    const storageRef = ref(storage, userID + "/" +  playID + "/" + file.name);
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case 'paused':
+            console.log('Upload is paused');
+            break;
+          case 'running':
+            console.log('Upload is running');
+            break;
+        }
+      }, 
+      (error) => {
+        // A full list of error codes is available at
+        // https://firebase.google.com/docs/storage/web/handle-errors
+        switch (error.code) {
+          case 'storage/unauthorized':
+            // User doesn't have permission to access the object
+            break;
+          case 'storage/canceled':
+            // User canceled the upload
+            break;
+
+          // ...
+
+          case 'storage/unknown':
+            // Unknown error occurred, inspect error.serverResponse
+            break;
+        }
+      }, 
+      () => {
+        // Upload completed successfully, now we can get the download URL
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log('File available at', downloadURL);
+        });
+      }
+    );
+  }*/
 
 
   const addDrawing = (drawing) => {
@@ -267,8 +349,9 @@ export default function Play() {
   // TODO: implement save function by linking with firebase
   // store drawings into firebase in order to redraw on load
   const save = async () => {
-    
-    //const userID = auth.currentUser.uid
+    //uploadCanvas()
+    //const userID = auth.currentUser.uid<label>Upload Template</label>
+                <input type="file" onChange={onChange}></input>
     if (auth.currentUser) {
       // Data for new Play
       const userID = auth.currentUser.uid
@@ -297,7 +380,7 @@ export default function Play() {
           if(mins < 10){
             mins = "0" + mins
           }
-          const time = today.getMonth() + "/" + today.getDate() + ", " + hours + ':' + mins;
+          const time = today.getMonth() + "/" + today.getDate() + ", " + hours + ':' + mins + " " + suffix;
           setSavedTime(time)
           console.log("play saved successfully")
 
@@ -407,6 +490,7 @@ export default function Play() {
     bottom: "0px",
     left: "0px",
   };
+  
 
   // onMouseDown
   const startDrawing = ({ nativeEvent }) => {
@@ -531,6 +615,7 @@ export default function Play() {
     setCanArrow(mode2);
     toggleMode(2);
   };
+  
 
   return (
     <div>
@@ -685,6 +770,8 @@ export default function Play() {
                 <Button onClick={() => changeCurrentBackground(baseball)}>
                   Baseball
                 </Button>
+                <label>Upload Template</label>
+                <input type="file" onChange={onChange}></input>
                 
                 <Button onClick={() => changeCurrentBackground(blank)}>
                   Reset BG
