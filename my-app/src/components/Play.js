@@ -25,9 +25,9 @@ import { auth } from "./login/firebase";
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
 // Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
 
-const databaseURL = process.env.REACT_APP_DATABASE_URL
+const databaseURL = process.env.REACT_APP_DATABASE_URL;
 
-function ColorButton({ value, onColorClick, selectedColor}) {
+function ColorButton({ value, onColorClick, selectedColor }) {
   const cStyle = {
     aspectRatio: 1,
     backgroundColor: value,
@@ -104,6 +104,16 @@ export default function Play() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [canvasStates, setCanvasStates] = useState([[]]);
 
+  // image upload
+
+  const onChange = (event) => {
+    // data for submit
+    console.log(URL.createObjectURL(event.target.files[0]));
+    let bgUrl = URL.createObjectURL(event.target.files[0]);
+
+    changeCurrentBackground(bgUrl);
+  };
+
   // sets up and grabs reference to canvas
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -121,7 +131,6 @@ export default function Play() {
     contextRef.current = context;
     contextRef.current.globalCompositeOperation = "source-over";
   }, []);
-
 
   const sendData = () => {
     /*if (userID) {
@@ -142,9 +151,9 @@ export default function Play() {
             addNoteData();
           }
         });*/
-  }
+  };
 
-    /*const updateNoteData = (currentDrawings) => {
+  /*const updateNoteData = (currentDrawings) => {
       if (userID) {
         const data = {
           drawings: currentDrawings,
@@ -679,7 +688,8 @@ export default function Play() {
                 <Button onClick={() => changeCurrentBackground(baseball)}>
                   Baseball
                 </Button>
-                
+                <label>Upload Template</label>
+                <input type="file" onChange={onChange}></input>
                 <Button onClick={() => changeCurrentBackground(blank)}>
                   Reset BG
                 </Button>
