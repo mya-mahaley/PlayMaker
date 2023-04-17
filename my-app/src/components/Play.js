@@ -245,8 +245,19 @@ export default function Play() {
     contextRef.current.beginPath();
     if (shape.shape === "O") {
       contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
+    } else if (shape.shape === "triangle") {
+      // TODO: finish this
+      contextRef.current.moveTo(shape.x, shape.y - 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x - 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x, shape.y - 20);
+    } else if (shape.shape === "square") {
+      contextRef.current.moveTo(shape.x - 20, shape.y - 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y - 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x - 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x - 20, shape.y - 20);
     } else {
-      contextRef.current.beginPath();
       contextRef.current.moveTo(shape.x - 20, shape.y - 20);
       contextRef.current.lineTo(shape.x + 20, shape.y + 20);
       contextRef.current.stroke();
@@ -582,6 +593,10 @@ export default function Play() {
                 <ButtonGroup>
                   <Button onClick={() => addShape("O")}>O</Button>
                   <Button onClick={() => addShape("X")}>X</Button>
+                  <Button onClick={() => addShape("triangle")}>
+                    <u>/\</u>
+                  </Button>
+                  <Button onClick={() => addShape("square")}>|=|</Button>
                 </ButtonGroup>
 
                 <ButtonGroup>
