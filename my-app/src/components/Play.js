@@ -16,6 +16,20 @@ import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { useLocation, useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom";
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import SquareOutlinedIcon from '@mui/icons-material/SquareOutlined';
+import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
+import PanToolAltOutlinedIcon from '@mui/icons-material/PanToolAltOutlined';
+import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined';
+import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
+import RedoOutlinedIcon from '@mui/icons-material/RedoOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
+import SportsFootballIcon from '@mui/icons-material/SportsFootball';
+import SportsBaseballIcon from '@mui/icons-material/SportsBaseball';
+import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
+import ClearAllIcon from '@mui/icons-material/ClearAll';
 import { auth, storage } from "./login/firebase";
 
 
@@ -186,9 +200,12 @@ export default function Play() {
   };
 
   const addDrawing = (drawing) => {
-    let newDrawings = [...drawings];
-    addCanvasState([...newDrawings, drawing]);
-    setDrawings((drawings) => [...drawings, drawing]);
+     // let newDrawings = [...drawings];
+     let newDrawings = JSON.parse(JSON.stringify(drawings));
+     let newDrawing = JSON.parse(JSON.stringify(drawing));
+     addCanvasState([...newDrawings, newDrawing]);
+     setDrawings([...newDrawings, newDrawing]);
+     // setDrawings((drawings) => [...drawings, drawing]);
   };
 
   const addShape = (shapeType) => {
@@ -202,7 +219,7 @@ export default function Play() {
     };
 
     addDrawing(newShape);
-    drawShape(newShape);
+    //drawShape(newShape);
   };
 
   const drawShape = (shape) => {
@@ -270,12 +287,20 @@ export default function Play() {
 
   const addCanvasState = (currentDrawing) => {
     // remove all future (redo) states
-    let canvasState = [
-      ...canvasStates.slice(0, currentIndex + 1),
-      currentDrawing,
-    ];
+    console.log(currentIndex);
+    let canvasState = JSON.parse(
+      JSON.stringify([
+        ...canvasStates.slice(0, currentIndex + 1),
+      ])
+    );
+    canvasState.push(currentDrawing);
+    // let canvasState = [
+    //   ...canvasStates.slice(0, currentIndex + 1),
+    //   currentDrawing,
+    // ];
     setCanvasStates(canvasState);
     setCurrentIndex(canvasState.length - 1);
+    console.log(canvasState);
   };
 
   const undoAction = () => {
@@ -328,7 +353,7 @@ export default function Play() {
           let hours = today.getHours()
           let mins = today.getMinutes()
           let suffix = "AM"
-          if(hours % 12 > 0 || hours === 12){
+          if(hours >= 12){
             hours= hours % 12
             suffix = "PM"
           }
@@ -451,14 +476,18 @@ export default function Play() {
     findNearestDrawing(offsetX, offsetY);
     if (eraseMode) {
       // erase mode, delete the nearest drawing and redraw
-      if (nearestDrawing !== -1) {
-        let newDrawings = [
-          ...drawings.slice(0, nearestDrawing),
-          ...drawings.slice(nearestDrawing + 1, drawings.length),
-        ];
-        setDrawings(newDrawings);
+      // let newDrawings = [
+        //   ...drawings.slice(0, nearestDrawing),
+        //   ...drawings.slice(nearestDrawing + 1, drawings.length),
+        // ];
+        let newDrawings = JSON.parse(
+          JSON.stringify([
+            ...drawings.slice(0, nearestDrawing),
+            ...drawings.slice(nearestDrawing + 1, drawings.length),
+          ])
+        );
         addCanvasState(newDrawings);
-      }
+        setDrawings(newDrawings);
     } else if (canDraw) {
       contextRef.current.beginPath();
       contextRef.current.moveTo(offsetX, offsetY);
@@ -539,10 +568,8 @@ export default function Play() {
       addDrawing(currentLine);
     }
     if (canDrag && mouseDown) {
-      // enable undo/redo for dragging
-      // let newDrawing = [...drawings];
-      // addCanvasState(newDrawing);
-      // console.log(canvasStates);
+      let newDrawing = JSON.parse(JSON.stringify(drawings));
+      addCanvasState(newDrawing);
     }
     setMouseDown(false);
     findNearestDrawing(offsetX, offsetY);
@@ -578,11 +605,11 @@ export default function Play() {
               </Link>
             <ButtonGroup>
 
-              <Button className="smallTealButton" onClick={() => undoAction()}>Undo</Button>
-              <Button className="smallTealButton" onClick={() => redoAction()}>Redo</Button>
+              <Button className="smallTealButton" onClick={() => undoAction()}><UndoOutlinedIcon/></Button>
+              <Button className="smallTealButton" onClick={() => redoAction()}><RedoOutlinedIcon/></Button>
       
             </ButtonGroup>
-            <Button className="smallTealButton" onClick={() => save()}>Save</Button>
+            <Button className="smallTealButton" onClick={() => save()}><SaveIcon/></Button>
           </Col>
           <Col className="headerBorder">
               <Form>
@@ -591,7 +618,7 @@ export default function Play() {
                   controlId="exampleForm.ControlTextarea1"
                 >
                   <Form.Control
-                    size="lg"
+                    size="md"
                     type="text"
                     rows={1}
                     onChange={(e) => {
@@ -613,10 +640,10 @@ export default function Play() {
               <h3>Shapes</h3>
               <Container style={{backgroundColor: "#38455D"}}>
                 <ButtonGroup>
-                  <Button className="smallTealButton" onClick={() => addShape("O")}>O</Button>
-                  <Button className="smallTealButton" onClick={() => addShape("X")}>X</Button>
-                  <Button className="smallTealButton" onClick={() => addShape("triangle")}>/\</Button>
-                  <Button className="smallTealButton" onClick={() => addShape("square")}>|=|</Button>
+                  <Button className="smallTealButton" onClick={() => addShape("O")}><CircleOutlinedIcon/></Button>
+                  <Button className="smallTealButton" onClick={() => addShape("X")}><CloseOutlinedIcon/></Button>
+                  <Button className="smallTealButton" onClick={() => addShape("triangle")}><ChangeHistoryOutlinedIcon/></Button>
+                  <Button className="smallTealButton" onClick={() => addShape("square")}><SquareOutlinedIcon/></Button>
                 </ButtonGroup>
 
                 <ButtonGroup>
@@ -631,7 +658,7 @@ export default function Play() {
                       canDraw === true && canDash === true && canArrow === false
                         ? "active"
                         : "smallTealButton"
-                    } onClick={() => toggleRoute(true, false)}>--</Button>
+                    } onClick={() => toggleRoute(true, false)}>- - -</Button>
                   <Button className={
                       canDraw === true && canDash === false && canArrow === true
                         ? "active"
@@ -644,12 +671,14 @@ export default function Play() {
                         ? "active"
                         : "smallTealButton"
                     } onClick={() => toggleRoute(true, true)}>
-                    --{">"}
+                    - - -{">"}
                   </Button>
                 </ButtonGroup>
-
-                <Button className={eraseMode === true ? "active" : "smallTealButton"} onClick={() => toggleMode(1)}>Erase Mode</Button>
-                <Button className={canDrag === true ? "active" : "smallTealButton"} onClick={() => toggleMode(3)}>Drag Mode</Button>
+                <ButtonGroup>
+                <Button className={canDrag === true ? "active" : "smallTealButton"} onClick={() => toggleMode(3)}>Drag<PanToolAltOutlinedIcon/></Button>
+                <Button className={eraseMode === true ? "active" : "smallTealButton"} onClick={() => toggleMode(1)}>Erase <BackspaceOutlinedIcon/></Button>
+                </ButtonGroup>
+                <Button className={"smallTealButton"} onClick={() => {addCanvasState([]); setDrawings([]); toggleMode(2)}}>Clear All <ClearAllIcon/></Button>
               </Container>
             </Row>
             <Row className="containerBorder">
@@ -732,21 +761,22 @@ export default function Play() {
             <Row className="containerBorder">
               <h3>Templates</h3>
               <Container style={{backgroundColor: "#38455D"}}>
+              <ButtonGroup>
                 <Button  className={currentBackground === football ? "active" : "smallTealButton"}onClick={() => changeCurrentBackground(football)}>
-                  Football
+                  <SportsFootballIcon/>
                 </Button>
                 <Button className={currentBackground === basketball ? "active" : "smallTealButton"} onClick={() => changeCurrentBackground(basketball)}>
-                  Basketball
+                <SportsBasketballIcon/>
                 </Button>
                 <Button className={currentBackground === baseball ? "active" : "smallTealButton"} onClick={() => changeCurrentBackground(baseball)}>
-                  Baseball
+                <SportsBaseballIcon/>
                 </Button>
-                <label>Upload Template</label>
-                <input type="file" onChange={onChange}></input>
-                
                 <Button className="smallTealButton" onClick={() => changeCurrentBackground(blank)}>
-                  Reset BG
+                 Blank
                 </Button>
+                </ButtonGroup>
+                <label>Upload Template</label>
+                <input className="smallTealButton" type="file" onChange={onChange}></input>
               </Container>
             </Row>
             <Row className="containerBorder">
