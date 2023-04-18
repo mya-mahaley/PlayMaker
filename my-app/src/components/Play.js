@@ -308,9 +308,7 @@ export default function Play() {
     // remove all future (redo) states
     console.log(currentIndex);
     let canvasState = JSON.parse(
-      JSON.stringify([
-        ...canvasStates.slice(0, currentIndex + 1),
-      ])
+      JSON.stringify([...canvasStates.slice(0, currentIndex + 1)])
     );
     canvasState.push(currentDrawing);
     // let canvasState = [
@@ -618,18 +616,62 @@ export default function Play() {
                 </ButtonGroup>
 
                 <ButtonGroup>
-                  <Button onClick={() => toggleRoute(false, false)}>—</Button>
-                  <Button onClick={() => toggleRoute(true, false)}>--</Button>
-                  <Button onClick={() => toggleRoute(false, true)}>
+                  <Button
+                    onClick={() => toggleRoute(false, false)}
+                    className={
+                      canDraw === true &&
+                      canDash === false &&
+                      canArrow === false
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    —
+                  </Button>
+                  <Button
+                    onClick={() => toggleRoute(true, false)}
+                    className={
+                      canDraw === true && canDash === true && canArrow === false
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    --
+                  </Button>
+                  <Button
+                    onClick={() => toggleRoute(false, true)}
+                    className={
+                      canDraw === true && canDash === false && canArrow === true
+                        ? "active"
+                        : ""
+                    }
+                  >
                     —{">"}
                   </Button>
-                  <Button onClick={() => toggleRoute(true, true)}>
+                  <Button
+                    onClick={() => toggleRoute(true, true)}
+                    className={
+                      canDraw === true && canDash === true && canArrow === true
+                        ? "active"
+                        : ""
+                    }
+                  >
                     --{">"}
                   </Button>
                 </ButtonGroup>
 
-                <Button onClick={() => toggleMode(1)}>Erase Mode</Button>
-                <Button onClick={() => toggleMode(3)}>Drag Mode</Button>
+                <Button
+                  onClick={() => toggleMode(1)}
+                  className={eraseMode === true ? "active" : ""}
+                >
+                  Erase Mode
+                </Button>
+                <Button
+                  onClick={() => toggleMode(3)}
+                  className={canDrag === true ? "active" : ""}
+                >
+                  Drag Mode
+                </Button>
               </Container>
             </Row>
             <Row className="containerBorder">
@@ -712,13 +754,22 @@ export default function Play() {
             <Row className="containerBorder">
               <h3>Templates</h3>
               <Container>
-                <Button onClick={() => changeCurrentBackground(football)}>
+                <Button
+                  onClick={() => changeCurrentBackground(football)}
+                  className={currentBackground === football ? "active" : ""}
+                >
                   Football
                 </Button>
-                <Button onClick={() => changeCurrentBackground(basketball)}>
+                <Button
+                  onClick={() => changeCurrentBackground(basketball)}
+                  className={currentBackground === basketball ? "active" : ""}
+                >
                   Basketball
                 </Button>
-                <Button onClick={() => changeCurrentBackground(baseball)}>
+                <Button
+                  onClick={() => changeCurrentBackground(baseball)}
+                  className={currentBackground === baseball ? "active" : ""}
+                >
                   Baseball
                 </Button>
                 <label>Upload Template</label>

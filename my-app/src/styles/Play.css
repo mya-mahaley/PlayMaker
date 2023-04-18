@@ -20,3 +20,7 @@
 .NotesButton {
   margin: 0px;
 }
+
+Button.active {
+  background-color: darkblue;
+}
