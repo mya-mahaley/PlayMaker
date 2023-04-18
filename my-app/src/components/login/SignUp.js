@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { TextField, Button } from "@mui/material";
+import { TextField } from "@mui/material";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -74,34 +76,25 @@ export default function SignUp() {
   };
 
   return (
-    <div className="container">
-      <h2>Sign Up</h2>
-      <TextField
-        id="outlined-basic"
-        label="Email"
-        fullWidth
-        value={email}
-        onChange={handleEmailChange}
-        variant="outlined"
-      />
-      <TextField
-        id="outlined-basic"
-        label="Password"
-        fullWidth
-        value={password}
-        onChange={handlePasswordChange}
-        variant="outlined"
-      />
-      <TextField
-        id="outlined-basic"
-        label="Confirm Password"
-        fullWidth
-        value={password2}
-        onChange={handlePassword2Change}
-        variant="outlined"
-      />
+    <div className="container" style={{backgroundColor: "#38455D"}}>
+      <h2><b>Sign Up</b></h2>
+      <Form>
+          <Form.Group className="mb-3">
+            <Form.Control className = "form-control-lg" rows={1} onChange={handleEmailChange} placeholder="Email Address"/>
+          </Form.Group>
+      </Form>
+      <Form>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+            <Form.Control className = "form-control-lg" rows={1} onChange={handlePasswordChange} placeholder="Password"/>
+          </Form.Group>
+      </Form>
+      <Form>
+          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+            <Form.Control className = "form-control-lg" rows={1} onChange={handlePassword2Change} placeholder="Password"/>
+          </Form.Group>
+      </Form>
       {passwordMatch ? <div></div> : <div>Passwords do not match!</div>}
-      <Button variant="contained" type="submit" onClick={onSubmit}>
+      <Button className="TealButton" type="submit" onClick={onSubmit}>
         Sign Up
       </Button>
     </div>

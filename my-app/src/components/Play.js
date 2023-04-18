@@ -16,9 +16,8 @@ import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { useLocation, useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom";
-import { cyan } from "@mui/material/colors";
 import { auth, storage } from "./login/firebase";
-import {ref, uploadBytes, getDownloadURL } from "firebase/storage"
+
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
@@ -29,11 +28,12 @@ import {ref, uploadBytes, getDownloadURL } from "firebase/storage"
 // Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
 
 
-// Upload play preview https://www.makeuseof.com/upload-files-to-firebase-using-reactjs/ 
+// Upload play preview https://www.makeuseof.com/upload-files-to-firebase-using-reactjs/ https://github.com/eligrey/FileSaver.js/issues/263 
 const databaseURL = process.env.REACT_APP_DATABASE_URL
 
 function ColorButton({ value, onColorClick, selectedColor}) {
   const cStyle = {
+    margin: "0px",
     aspectRatio: 1,
     backgroundColor: value,
     border: "3px solid",
@@ -185,75 +185,6 @@ export default function Play() {
     }
   };
 
-  function uploadCanvas() {
-    const canvas = canvasRef.current
-    const blob = canvas.toBlob()
-    console.log(canvas);
-    canvas.toBlob(function(blob){
-      var image = new Image();
-      image.src = blob;
-      const userID = auth.currentUser.uid
-      const storageRef = ref(storage, userID + "/" +  playID + "/preview");
-
-      uploadBytes(storageRef, image).then((snapshot) => {
-        console.log('Uploaded a blob or file!');
-      });
-      
-    }); 
-  }
-
-  /*function uploadCanvas() {
-    const file = canvasRef.current.toDataURL('image/jpeg')
-    console.log(file)
-     //TO DO: CHANGE THIS STUFF
-    const metadata = {
-      contentType: 'image/jpeg'
-    };
-    const userID = auth.currentUser.uid
-    const storageRef = ref(storage, userID + "/" +  playID + "/" + file.name);
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-    uploadTask.on('state_changed',
-      (snapshot) => {
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
-        switch (snapshot.state) {
-          case 'paused':
-            console.log('Upload is paused');
-            break;
-          case 'running':
-            console.log('Upload is running');
-            break;
-        }
-      }, 
-      (error) => {
-        // A full list of error codes is available at
-        // https://firebase.google.com/docs/storage/web/handle-errors
-        switch (error.code) {
-          case 'storage/unauthorized':
-            // User doesn't have permission to access the object
-            break;
-          case 'storage/canceled':
-            // User canceled the upload
-            break;
-
-          // ...
-
-          case 'storage/unknown':
-            // Unknown error occurred, inspect error.serverResponse
-            break;
-        }
-      }, 
-      () => {
-        // Upload completed successfully, now we can get the download URL
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log('File available at', downloadURL);
-        });
-      }
-    );
-  }*/
-
-
   const addDrawing = (drawing) => {
     let newDrawings = [...drawings];
     addCanvasState([...newDrawings, drawing]);
@@ -349,15 +280,26 @@ export default function Play() {
   // TODO: implement save function by linking with firebase
   // store drawings into firebase in order to redraw on load
   const save = async () => {
-    //uploadCanvas()
-    //const userID = auth.currentUser.uid<label>Upload Template</label>
-                <input type="file" onChange={onChange}></input>
     if (auth.currentUser) {
       // Data for new Play
+      //uploadCanvas()
       const userID = auth.currentUser.uid
+      const canvas = canvasRef.current
+      
+      var background = new Image();
+      background.src =`url(${currentBackground})`;
+      // Make sure the image is loaded first otherwise nothing will draw.
+      background.onload = function(){
+        canvas.drawImage(background,0,0);   
+      };
+
+      var mediumQuality = canvas.toDataURL("image/png", 0.5)
+
+      console.log(mediumQuality)
       const data = {
         title: title,
-        drawings: drawings
+        drawings: drawings,
+        preview: mediumQuality
       };
 
       //Create new play in DB, then navigate to the play page
@@ -383,7 +325,6 @@ export default function Play() {
           const time = today.getMonth() + "/" + today.getDate() + ", " + hours + ':' + mins + " " + suffix;
           setSavedTime(time)
           console.log("play saved successfully")
-
         }
       })
     }
@@ -400,9 +341,6 @@ export default function Play() {
   // draws all the shapes on the canvas, updates when array of objects get updated
   useEffect(() => {
     const canvas = canvasRef.current;
-    // console.log("erasing canvas!");
-    // console.log(drawings);
-
     // erases the entire canvas
     // why? so we can infinitely redraw with new coords to simulate "dragging"
     contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
@@ -620,19 +558,20 @@ export default function Play() {
   return (
     <div>
       <Container>
-        <Row className="headerBorder">
-          <Col className="containerBorder" xs lg="3">
-            <ButtonGroup>
-              <Link to="/account">
-              <Button onClick={() => back()}>Back</Button>
+        <Row >
+          <Col className="headerBorder" xs lg="3">
+            <Link to="/account">
+              <Button className="smallTealButton" onClick={() => back()}>Back</Button>
               </Link>
-              <Button onClick={() => undoAction()}>Undo</Button>
-              <Button onClick={() => redoAction()}>Redo</Button>
-              <Button onClick={() => save()}>Save</Button>
+            <ButtonGroup>
+
+              <Button className="smallTealButton" onClick={() => undoAction()}>Undo</Button>
+              <Button className="smallTealButton" onClick={() => redoAction()}>Redo</Button>
+      
             </ButtonGroup>
+            <Button className="smallTealButton" onClick={() => save()}>Save</Button>
           </Col>
-          <Col className="containerBorder">
-            <Row className="align-items-center">
+          <Col className="headerBorder">
               <Form>
                 <Form.Group
                   className="mb-3"
@@ -649,64 +588,81 @@ export default function Play() {
                   />
                 </Form.Group>
               </Form>
-            </Row>
           </Col>
-          <Col className="containerBorder" xs lg="2">
-            <Row>User: Guest</Row>
-            <Row>Saved: {savedTime}</Row>
+          <Col className="headerBorder" xs lg="2">
+            <Row style={{backgroundColor: "#38455D"}}>User: {auth.currentUser ? auth.currentUser.email : "error"}</Row>
+            <Row style={{backgroundColor: "#38455D"}}>Saved: {savedTime}</Row>
           </Col>
         </Row>
         <Row>
           <Col xs lg="3">
             <Row className="containerBorder">
               <h3>Shapes</h3>
-              <Container>
+              <Container style={{backgroundColor: "#38455D"}}>
                 <ButtonGroup>
-                  <Button onClick={() => addShape("O")}>O</Button>
-                  <Button onClick={() => addShape("X")}>X</Button>
+                  <Button className="smallTealButton" onClick={() => addShape("O")}>O</Button>
+                  <Button className="smallTealButton" onClick={() => addShape("X")}>X</Button>
                 </ButtonGroup>
 
                 <ButtonGroup>
-                  <Button onClick={() => toggleRoute(false, false)}>—</Button>
-                  <Button onClick={() => toggleRoute(true, false)}>--</Button>
-                  <Button onClick={() => toggleRoute(false, true)}>
+                  <Button className={
+                      canDraw === true &&
+                      canDash === false &&
+                      canArrow === false
+                        ? "active"
+                        : "smallTealButton"
+                    } onClick={() => toggleRoute(false, false)}>—</Button>
+                  <Button className={
+                      canDraw === true && canDash === true && canArrow === false
+                        ? "active"
+                        : "smallTealButton"
+                    } onClick={() => toggleRoute(true, false)}>--</Button>
+                  <Button className={
+                      canDraw === true && canDash === false && canArrow === true
+                        ? "active"
+                        : "smallTealButton"
+                    } onClick={() => toggleRoute(false, true)}>
                     —{">"}
                   </Button>
-                  <Button onClick={() => toggleRoute(true, true)}>
+                  <Button className={
+                      canDraw === true && canDash === true && canArrow === true
+                        ? "active"
+                        : "smallTealButton"
+                    } onClick={() => toggleRoute(true, true)}>
                     --{">"}
                   </Button>
                 </ButtonGroup>
 
-                <Button onClick={() => toggleMode(1)}>Erase Mode</Button>
-                <Button onClick={() => toggleMode(3)}>Drag Mode</Button>
+                <Button className={eraseMode === true ? "active" : "smallTealButton"} onClick={() => toggleMode(1)}>Erase Mode</Button>
+                <Button className={canDrag === true ? "active" : "smallTealButton"} onClick={() => toggleMode(3)}>Drag Mode</Button>
               </Container>
             </Row>
             <Row className="containerBorder">
               <h3>Colors</h3>
-              <Container>
-                <Row>
-                  <Col>
+              <Container fluid style={{backgroundColor: "#38455D"}}>
+                <Row style={{backgroundColor: "#38455D"}}>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorButton
                       value={"#F64D4D"}
                       onColorClick={() => handleColorClick("#F64D4D")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorButton
                       value={"#F69E4D"}
                       onColorClick={() => handleColorClick("#F69E4D")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorButton
                       value={"#F6E54D"}
                       onColorClick={() => handleColorClick("#F6E54D")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorButton
                       value={"#97F64D"}
                       onColorClick={() => handleColorClick("#97F64D")}
@@ -715,28 +671,28 @@ export default function Play() {
                   </Col>
                 </Row>
                 <Row>
-                  <Col>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorButton
                       value={"#4D86F6"}
                       onColorClick={() => handleColorClick("#4D86F6")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorButton
                       value={"#000000"}
                       onColorClick={() => handleColorClick("#000000")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorButton
                       value={"#ffffff"}
                       onColorClick={() => handleColorClick("#ffffff")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col>
+                  <Col style={{backgroundColor: "#38455D"}}>
                     <ColorPickButton
                       value={pickerColor}
                       onColorClick={() => handlePickerClick()}
@@ -760,20 +716,20 @@ export default function Play() {
             </Row>
             <Row className="containerBorder">
               <h3>Templates</h3>
-              <Container>
-                <Button onClick={() => changeCurrentBackground(football)}>
+              <Container style={{backgroundColor: "#38455D"}}>
+                <Button  className={currentBackground === football ? "active" : "smallTealButton"}onClick={() => changeCurrentBackground(football)}>
                   Football
                 </Button>
-                <Button onClick={() => changeCurrentBackground(basketball)}>
+                <Button className={currentBackground === basketball ? "active" : "smallTealButton"} onClick={() => changeCurrentBackground(basketball)}>
                   Basketball
                 </Button>
-                <Button onClick={() => changeCurrentBackground(baseball)}>
+                <Button className={currentBackground === baseball ? "active" : "smallTealButton"} onClick={() => changeCurrentBackground(baseball)}>
                   Baseball
                 </Button>
                 <label>Upload Template</label>
                 <input type="file" onChange={onChange}></input>
                 
-                <Button onClick={() => changeCurrentBackground(blank)}>
+                <Button className="smallTealButton" onClick={() => changeCurrentBackground(blank)}>
                   Reset BG
                 </Button>
               </Container>
@@ -781,7 +737,7 @@ export default function Play() {
             <Row className="containerBorder">
               <Button
                 variant="primary"
-                className="NotesButton"
+                className="NotesButton smallTealButton"
                 onClick={() => setShowNotes(true)}
               >
                 Show Notes

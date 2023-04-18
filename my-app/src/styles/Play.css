@@ -1,13 +1,29 @@
 .containerBorder {
-  border: solid #000;
-  border-width: 2px;  
+  border: solid #000; 
   text-align: center;
-  padding: 10px;
+  padding: 8px;
+  
+  border: 2px;
+  background-color: #38455D;
+  border-style: hidden;
+  box-shadow: 1px 1px 10px 1px rgba(31, 34, 57, 0.8);
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right:8px;
+
+  
 }
 
 .headerBorder {
-  border: solid #000;
+  border: 2px;
+  background-color: #38455D;
+  border-style: hidden;
+  padding-top: 7px;
+  box-shadow: 1px 1px 10px 1px rgba(31, 34, 57, 0.8);
+  border-radius: 10px;
   border-width: 0px;
+  margin-right: 10px;
   text-align: center;
 }
 
@@ -18,4 +34,12 @@
 
 .NotesButton {
   margin: 0px;
+}
+.smallTealButton {
+  background-color: #08C6AC;
+  border-color: #08C6AC;
+  font-size: medium;
+}
+Button.active {
+  background-color: #06627E;
 }

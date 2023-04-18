@@ -1,8 +1,6 @@
 import { useState } from "react";
-import {
-  TextField,
-  Button,
-} from "@mui/material";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -41,25 +39,19 @@ export default function SignIn() {
   };
 
   return (
-    <div className="container">
-      <h2>Login</h2>
-      <TextField
-        id="outlined-basic"
-        label="Email"
-        fullWidth
-        value={email}
-        onChange={handleEmailChange}
-        variant="outlined"
-      />
-      <TextField
-        id="outlined-basic"
-        label="Password"
-        fullWidth
-        value={password}
-        onChange={handlePasswordChange}
-        variant="outlined"
-      />
-      <Button variant="contained" onClick={onSubmit}>
+    <div className="container" style={{backgroundColor: "#38455D"}}>
+      <h2><b>Login</b></h2>
+      <Form> 
+          <Form.Group className="mb-3">
+            <Form.Control className = "form-control-lg" rows={1} onChange={handleEmailChange} placeholder="Email Address"/>
+          </Form.Group>
+      </Form>
+      <Form >
+          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+            <Form.Control className = "form-control-lg" rows={1} onChange={handlePasswordChange} placeholder="Password"/>
+          </Form.Group>
+      </Form>
+      <Button className="TealButton" onClick={onSubmit}>
         Login
       </Button>
     </div>
