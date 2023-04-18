@@ -235,6 +235,7 @@ export default function Play() {
 
   const drawShape = (shape) => {
     contextRef.current.strokeStyle = shape.color;
+    contextRef.current.setLineDash([]);
     contextRef.current.beginPath();
     if (shape.shape === "O") {
       contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
