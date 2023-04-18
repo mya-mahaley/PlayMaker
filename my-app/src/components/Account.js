@@ -12,21 +12,40 @@ import "../styles/Account.css";
 import Grid from "@mui/material/Grid";
 import { auth} from "./login/firebase";
 import { signOut } from "firebase/auth";
-import blank from "../images/blank_preview.png";
+import blank from "../images/blank_bg.jpg";
+import football from "../images/football_bg.png";
+import basketball from "../images/basketball_bg.jpg";
+import baseball from "../images/baseball_bg.jpg";
+import blank_preview from "../images/blank_preview.png";
 
 const databaseURL = process.env.REACT_APP_DATABASE_URL
 
-function PlayNavButton({playID, playTitle, navClick, source}) {
+function PlayNavButton({playID, playTitle, navClick, source, playBackground}) {
+  var backgroundImg = blank
+  if(playBackground === "basketball"){
+    backgroundImg = basketball
+  }
+  if(playBackground === "baseball"){
+    backgroundImg = baseball
+  }
+  if(playBackground === "football"){
+    backgroundImg = football
+  }
   if(source) {
     console.log("SOURCE")
     return (
+      <Grid item xs="4" className="PreviewGrid">
+        <Image className="PreviewImage" onClick={navClick} src={source} alt={playTitle} style={{backgroundImage: `url(${backgroundImg})`,backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover",}}/>
+        <h5>{playTitle}</h5>
+      </Grid>
       
-      <Image className="PreviewImage" onClick={navClick} src={source} alt={playTitle}/>       
     );
   } else {
     return (
 
-          <Image className="PreviewImage" onClick={navClick} src={blank} alt={playTitle}/>
+          <Image className="PreviewImage" onClick={navClick} src={blank_preview} alt={playTitle}/>
     );
   }
 }
@@ -123,7 +142,7 @@ export default function Account() {
           <h1 className="PlayTitle"><b>My Plays</b></h1>
         </Col>
         <Col className="AccountComponent" >
-          <Button fluid className="CreateButton" onClick={addPlay}>
+          <Button className="CreateButton" onClick={addPlay}>
               <b>Create New Play</b>
           </Button> 
         </Col>
@@ -134,12 +153,12 @@ export default function Account() {
       <body>
       <Container className="AccountScreen">
       <Container className="ScrollContainer">
-        <Grid className="GridStyle3" container spacing={4}>
+        <Grid className="GridStyle3" container >
             {
               playIDList ? (
-                  playIDList.map((playID) => <PlayNavButton playID={playID} playTitle={userRes[playID] ? userRes[playID].title : ""} source={userRes[playID] ? userRes[playID].preview : ""} navClick={() => {
+                  playIDList.map((playID) => <PlayNavButton playID={playID} playTitle={userRes[playID] ? userRes[playID].title : ""} playBackground={userRes[playID] ? userRes[playID].background : ""} source={userRes[playID] ? userRes[playID].preview : ""} navClick={() => {
                     console.log(userRes[playID])
-                    navigate('/play', {state:{playID: playID, playTitle: userRes[playID] ? userRes[playID].title : "", isNewPlay: userRes[playID].drawings ? false : true}})
+                    navigate('/play', {state:{playID: playID, playTitle: userRes[playID] ? userRes[playID].title : "", playBackground:userRes[playID] ? userRes[playID].background : "", isNewPlay: userRes[playID].drawings ? false : true}})
                   }}/>
                 )) : <Row></Row>
             }

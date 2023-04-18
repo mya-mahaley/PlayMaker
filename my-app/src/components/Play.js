@@ -16,6 +16,7 @@ import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
 import { useLocation, useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom";
+import NoteIcon from '@mui/icons-material/Note';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SquareOutlinedIcon from '@mui/icons-material/SquareOutlined';
@@ -104,6 +105,9 @@ export default function Play() {
   const [title, setTitle] = useState(playTitle);
   const [savedTime, setSavedTime] = useState("Not Saved")
   const isNewPlay = location.state?.isNewPlay
+  const prevBackground = location.state?.playBackground
+  
+  
   console.log(location)
   console.log(playID)
   console.log(playTitle)
@@ -156,6 +160,13 @@ export default function Play() {
 
     if(!isNewPlay){
       loadPlay()
+    }
+    if(prevBackground === "football"){
+      changeCurrentBackground(football)
+    } else if (prevBackground === "basketball") {
+      changeCurrentBackground(basketball)
+    }  else if (prevBackground === "baseball") {
+      changeCurrentBackground(baseball)
     }
   }, []);
 
@@ -323,21 +334,23 @@ export default function Play() {
       //uploadCanvas()
       const userID = auth.currentUser.uid
       const canvas = canvasRef.current
-      
-      var background = new Image();
-      background.src =`url(${currentBackground})`;
-      // Make sure the image is loaded first otherwise nothing will draw.
-      background.onload = function(){
-        canvas.drawImage(background,0,0);   
-      };
 
       var mediumQuality = canvas.toDataURL("image/png", 0.5)
+      var background = "blank"
+      if(currentBackground === football){
+        background = "football"
+      } else if (currentBackground === basketball) {
+        background = "basketball"
+      }  else if (currentBackground === baseball) {
+        background = "baseball"
+      }
 
       console.log(mediumQuality)
       const data = {
         title: title,
         drawings: drawings,
-        preview: mediumQuality
+        preview: mediumQuality,
+        background: background
       };
 
       //Create new play in DB, then navigate to the play page
@@ -635,7 +648,7 @@ export default function Play() {
                   className="NotesButton smallTealButton"
                   onClick={() => setShowNotes(true)}
                 >
-                  Show Notes
+                  Show Notes <NoteIcon></NoteIcon>
                 </Button>
                 <Notes show={showNotes} onHide={() => setShowNotes(false)} />
           </Col>

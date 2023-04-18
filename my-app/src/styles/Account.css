@@ -34,6 +34,7 @@ html, body {
   overflow: auto;
   height: 100%;
   width: 100%;
+  max-height: 500px;
   background-color: #38455D;
 }
 .TextAlignment {
@@ -78,11 +79,20 @@ html, body {
   border-style: solid;
   border-radius: 10px;
   margin: 10px;
+  object-fit: cover;
+  width: calc(100% - 100px);
+  height: calc(100% - 50px);
+  box-shadow: 1px 1px 10px 1px rgba(31, 34, 57, 0.8);
+}
+
+.PreviewGrid{
+  background-color: #38455D;
   width: calc((100% - 200px) / 4);
   height: calc((100% - 20px) / 2);
-  object-fit: cover;
-  background-color: azure;
-  box-shadow: 1px 1px 10px 1px rgba(31, 34, 57, 0.8);
+}
+
+.PreviewGrid:hover {
+  background-color: #06627E;
 }
 
 
