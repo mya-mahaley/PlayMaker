@@ -71,14 +71,31 @@ function ColorPickButton({ value, onColorClick, selectedColor }) {
 
 export default function Play() {
   const [showNotes, setShowNotes] = useState(false);
-  const [showPicker, setShowPicker] = useState(false);
   const [title, setTitle] = useState("Play");
   const [color, setColor] = useState("#000000");
-  const [pickerColor, setPickerColor] = useState("#DD22BD");
   const [currentBackground, changeCurrentBackground] = useState(blank);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   //const userID = auth.currentUser.uid;
+
+  // don't do this in actual industry code
+  const [pickerColor, setPickerColor] = useState("#F64D4D");
+  const [pickerColor1, setPickerColor1] = useState("#F69E4D");
+  const [pickerColor2, setPickerColor2] = useState("#F6E54D");
+  const [pickerColor3, setPickerColor3] = useState("#97F64D");
+  const [pickerColor4, setPickerColor4] = useState("#4D86F6");
+  const [pickerColor5, setPickerColor5] = useState("#000000");
+  const [pickerColor6, setPickerColor6] = useState("#ffffff");
+  const [pickerColor7, setPickerColor7] = useState("#DD22BD");
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [showPicker1, setShowPicker1] = useState(false);
+  const [showPicker2, setShowPicker2] = useState(false);
+  const [showPicker3, setShowPicker3] = useState(false);
+  const [showPicker4, setShowPicker4] = useState(false);
+  const [showPicker5, setShowPicker5] = useState(false);
+  const [showPicker6, setShowPicker6] = useState(false);
+  const [showPicker7, setShowPicker7] = useState(false);
 
   const [mouseDown, setMouseDown] = useState(false);
   const [lastX, setLastX] = useState(0);
@@ -409,12 +426,104 @@ export default function Play() {
     setPickerColor(value);
   }
 
+  function handlePickerChange1(value) {
+    setPickerColor1(value);
+  }
+
+  function handlePickerChange2(value) {
+    setPickerColor2(value);
+  }
+
+  function handlePickerChange3(value) {
+    setPickerColor3(value);
+  }
+
+  function handlePickerChange4(value) {
+    setPickerColor4(value);
+  }
+
+  function handlePickerChange5(value) {
+    setPickerColor5(value);
+  }
+
+  function handlePickerChange6(value) {
+    setPickerColor6(value);
+  }
+
+  function handlePickerChange7(value) {
+    setPickerColor7(value);
+  }
+
   function handlePickerClick() {
     setShowPicker(!showPicker);
   }
 
   function handlePickerClose() {
     setShowPicker(false);
+    setColor(pickerColor);
+  }
+
+  function handlePickerClick1() {
+    setShowPicker1(!showPicker1);
+  }
+
+  function handlePickerClose1() {
+    setShowPicker1(false);
+    setColor(pickerColor1);
+  }
+
+  function handlePickerClick2() {
+    setShowPicker2(!showPicker2);
+  }
+
+  function handlePickerClose2() {
+    setShowPicker2(false);
+    setColor(pickerColor2);
+  }
+
+  function handlePickerClick3() {
+    setShowPicker3(!showPicker3);
+  }
+
+  function handlePickerClose3() {
+    setShowPicker3(false);
+    setColor(pickerColor3);
+  }
+
+  function handlePickerClick4() {
+    setShowPicker4(!showPicker4);
+  }
+
+  function handlePickerClose4() {
+    setShowPicker4(false);
+    setColor(pickerColor4);
+  }
+
+  function handlePickerClick5() {
+    setShowPicker5(!showPicker5);
+  }
+
+  function handlePickerClose5() {
+    setShowPicker5(false);
+    setColor(pickerColor5);
+  }
+
+  function handlePickerClick6() {
+    setShowPicker6(!showPicker6);
+  }
+
+  function handlePickerClose6() {
+    setShowPicker6(false);
+    setColor(pickerColor6);
+  }
+
+  function handlePickerClick7() {
+    setShowPicker7(!showPicker7);
+  }
+
+  function handlePickerClose7() {
+    setShowPicker7(false);
+    setColor(pickerColor7);
   }
 
   const popover = {
@@ -679,57 +788,6 @@ export default function Play() {
               <Container>
                 <Row>
                   <Col>
-                    <ColorButton
-                      value={"#F64D4D"}
-                      onColorClick={() => handleColorClick("#F64D4D")}
-                      selectedColor={color}
-                    ></ColorButton>
-                  </Col>
-                  <Col>
-                    <ColorButton
-                      value={"#F69E4D"}
-                      onColorClick={() => handleColorClick("#F69E4D")}
-                      selectedColor={color}
-                    ></ColorButton>
-                  </Col>
-                  <Col>
-                    <ColorButton
-                      value={"#F6E54D"}
-                      onColorClick={() => handleColorClick("#F6E54D")}
-                      selectedColor={color}
-                    ></ColorButton>
-                  </Col>
-                  <Col>
-                    <ColorButton
-                      value={"#97F64D"}
-                      onColorClick={() => handleColorClick("#97F64D")}
-                      selectedColor={color}
-                    ></ColorButton>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col>
-                    <ColorButton
-                      value={"#4D86F6"}
-                      onColorClick={() => handleColorClick("#4D86F6")}
-                      selectedColor={color}
-                    ></ColorButton>
-                  </Col>
-                  <Col>
-                    <ColorButton
-                      value={"#000000"}
-                      onColorClick={() => handleColorClick("#000000")}
-                      selectedColor={color}
-                    ></ColorButton>
-                  </Col>
-                  <Col>
-                    <ColorButton
-                      value={"#ffffff"}
-                      onColorClick={() => handleColorClick("#ffffff")}
-                      selectedColor={color}
-                    ></ColorButton>
-                  </Col>
-                  <Col>
                     <ColorPickButton
                       value={pickerColor}
                       onColorClick={() => handlePickerClick()}
@@ -742,6 +800,141 @@ export default function Play() {
                       <SketchPicker
                         color={pickerColor}
                         onChange={(color) => handlePickerChange(color.hex)}
+                        onChangeComplete={(color) =>
+                          handleColorClick(color.hex)
+                        }
+                      />
+                    </div>
+                  ) : null}
+                  <Col>
+                    <ColorPickButton
+                      value={pickerColor1}
+                      onColorClick={() => handlePickerClick1()}
+                      selectedColor={color}
+                    ></ColorPickButton>
+                  </Col>
+                  {showPicker1 ? (
+                    <div style={popover}>
+                      <div style={cover} onClick={handlePickerClose1} />
+                      <SketchPicker
+                        color={pickerColor1}
+                        onChange={(color) => handlePickerChange1(color.hex)}
+                        onChangeComplete={(color) =>
+                          handleColorClick(color.hex)
+                        }
+                      />
+                    </div>
+                  ) : null}
+                  <Col>
+                    <ColorPickButton
+                      value={pickerColor2}
+                      onColorClick={() => handlePickerClick2()}
+                      selectedColor={color}
+                    ></ColorPickButton>
+                  </Col>
+                  {showPicker2 ? (
+                    <div style={popover}>
+                      <div style={cover} onClick={handlePickerClose2} />
+                      <SketchPicker
+                        color={pickerColor2}
+                        onChange={(color) => handlePickerChange2(color.hex)}
+                        onChangeComplete={(color) =>
+                          handleColorClick(color.hex)
+                        }
+                      />
+                    </div>
+                  ) : null}
+                  <Col>
+                    <ColorPickButton
+                      value={pickerColor3}
+                      onColorClick={() => handlePickerClick3()}
+                      selectedColor={color}
+                    ></ColorPickButton>
+                  </Col>
+                  {showPicker3 ? (
+                    <div style={popover}>
+                      <div style={cover} onClick={handlePickerClose3} />
+                      <SketchPicker
+                        color={pickerColor3}
+                        onChange={(color) => handlePickerChange3(color.hex)}
+                        onChangeComplete={(color) =>
+                          handleColorClick(color.hex)
+                        }
+                      />
+                    </div>
+                  ) : null}
+                </Row>
+                <Row>
+                  <Col>
+                    <ColorPickButton
+                      value={pickerColor4}
+                      onColorClick={() => handlePickerClick4()}
+                      selectedColor={color}
+                    ></ColorPickButton>
+                  </Col>
+                  {showPicker4 ? (
+                    <div style={popover}>
+                      <div style={cover} onClick={handlePickerClose4} />
+                      <SketchPicker
+                        color={pickerColor4}
+                        onChange={(color) => handlePickerChange4(color.hex)}
+                        onChangeComplete={(color) =>
+                          handleColorClick(color.hex)
+                        }
+                      />
+                    </div>
+                  ) : null}
+                  <Col>
+                    <ColorPickButton
+                      value={pickerColor5}
+                      onColorClick={() => handlePickerClick5()}
+                      selectedColor={color}
+                    ></ColorPickButton>
+                  </Col>
+                  {showPicker5 ? (
+                    <div style={popover}>
+                      <div style={cover} onClick={handlePickerClose5} />
+                      <SketchPicker
+                        color={pickerColor5}
+                        onChange={(color) => handlePickerChange5(color.hex)}
+                        onChangeComplete={(color) =>
+                          handleColorClick(color.hex)
+                        }
+                      />
+                    </div>
+                  ) : null}
+                  <Col>
+                    <ColorPickButton
+                      value={pickerColor6}
+                      onColorClick={() => handlePickerClick6()}
+                      selectedColor={color}
+                    ></ColorPickButton>
+                  </Col>
+                  {showPicker6 ? (
+                    <div style={popover}>
+                      <div style={cover} onClick={handlePickerClose6} />
+                      <SketchPicker
+                        color={pickerColor6}
+                        onChange={(color) => handlePickerChange6(color.hex)}
+                        onChangeComplete={(color) =>
+                          handleColorClick(color.hex)
+                        }
+                      />
+                    </div>
+                  ) : null}
+                  <Col>
+                    <ColorPickButton
+                      value={pickerColor7}
+                      onColorClick={() => handlePickerClick7()}
+                      selectedColor={color}
+                    ></ColorPickButton>
+                  </Col>
+                  {showPicker7 ? (
+                    <div style={popover}>
+                      <div style={cover} onClick={handlePickerClose7} />
+                      <SketchPicker
+                        color={pickerColor7}
+                        onChange={(color) => handlePickerChange7(color.hex)}
                         onChangeComplete={(color) =>
                           handleColorClick(color.hex)
                         }
