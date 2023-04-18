@@ -222,9 +222,12 @@ export default function Play() {
     };*/
 
   const addDrawing = (drawing) => {
-    let newDrawings = [...drawings];
-    addCanvasState([...newDrawings, drawing]);
-    setDrawings((drawings) => [...drawings, drawing]);
+    // let newDrawings = [...drawings];
+    let newDrawings = JSON.parse(JSON.stringify(drawings));
+    let newDrawing = JSON.parse(JSON.stringify(drawing));
+    addCanvasState([...newDrawings, newDrawing]);
+    setDrawings([...newDrawings, newDrawing]);
+    // setDrawings((drawings) => [...drawings, drawing]);
   };
 
   const addShape = (shapeType) => {
@@ -237,7 +240,7 @@ export default function Play() {
     };
 
     addDrawing(newShape);
-    drawShape(newShape);
+    // drawShape(newShape);
   };
 
   const drawShape = (shape) => {
@@ -246,7 +249,6 @@ export default function Play() {
     if (shape.shape === "O") {
       contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
     } else if (shape.shape === "triangle") {
-      // TODO: finish this
       contextRef.current.moveTo(shape.x, shape.y - 20);
       contextRef.current.lineTo(shape.x + 20, shape.y + 20);
       contextRef.current.lineTo(shape.x - 20, shape.y + 20);
@@ -304,24 +306,34 @@ export default function Play() {
 
   const addCanvasState = (currentDrawing) => {
     // remove all future (redo) states
-    let canvasState = [
-      ...canvasStates.slice(0, currentIndex + 1),
-      currentDrawing,
-    ];
+    console.log(currentIndex);
+    let canvasState = JSON.parse(
+      JSON.stringify([
+        ...canvasStates.slice(0, currentIndex + 1),
+      ])
+    );
+    canvasState.push(currentDrawing);
+    // let canvasState = [
+    //   ...canvasStates.slice(0, currentIndex + 1),
+    //   currentDrawing,
+    // ];
     setCanvasStates(canvasState);
     setCurrentIndex(canvasState.length - 1);
+    console.log(canvasState);
   };
 
   const undoAction = () => {
     let newIndex = Math.max(0, currentIndex - 1);
     setCurrentIndex(newIndex);
     setDrawings(canvasStates[newIndex]);
+    console.log(newIndex, canvasStates.length);
   };
 
   const redoAction = () => {
     let newIndex = Math.min(canvasStates.length - 1, currentIndex + 1);
     setCurrentIndex(newIndex);
     setDrawings(canvasStates[newIndex]);
+    console.log(newIndex, canvasStates.length);
   };
 
   // TODO: implement save function by linking with firebase
@@ -331,8 +343,6 @@ export default function Play() {
   // draws all the shapes on the canvas, updates when array of objects get updated
   useEffect(() => {
     const canvas = canvasRef.current;
-    // console.log("erasing canvas!");
-    // console.log(drawings);
 
     // erases the entire canvas
     // why? so we can infinitely redraw with new coords to simulate "dragging"
@@ -431,12 +441,18 @@ export default function Play() {
     if (eraseMode) {
       // erase mode, delete the nearest drawing and redraw
       if (nearestDrawing !== -1) {
-        let newDrawings = [
-          ...drawings.slice(0, nearestDrawing),
-          ...drawings.slice(nearestDrawing + 1, drawings.length),
-        ];
-        setDrawings(newDrawings);
+        // let newDrawings = [
+        //   ...drawings.slice(0, nearestDrawing),
+        //   ...drawings.slice(nearestDrawing + 1, drawings.length),
+        // ];
+        let newDrawings = JSON.parse(
+          JSON.stringify([
+            ...drawings.slice(0, nearestDrawing),
+            ...drawings.slice(nearestDrawing + 1, drawings.length),
+          ])
+        );
         addCanvasState(newDrawings);
+        setDrawings(newDrawings);
       }
     } else if (canDraw) {
       contextRef.current.beginPath();
@@ -476,6 +492,7 @@ export default function Play() {
           draggedDrawing.endY += offsetY - lastY;
         }
 
+        // let newDrawings = JSON.parse(JSON.stringify(drawings));
         let newDrawings = [...drawings];
         newDrawings[nearestDrawing] = draggedDrawing;
         setDrawings(newDrawings);
@@ -519,8 +536,9 @@ export default function Play() {
     }
     if (canDrag && mouseDown) {
       // enable undo/redo for dragging
+      let newDrawing = JSON.parse(JSON.stringify(drawings));
       // let newDrawing = [...drawings];
-      // addCanvasState(newDrawing);
+      addCanvasState(newDrawing);
       // console.log(canvasStates);
     }
     setMouseDown(false);
