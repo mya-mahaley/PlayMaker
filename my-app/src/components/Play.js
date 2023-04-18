@@ -630,6 +630,16 @@ export default function Play() {
               </Form>
           </Col>
           <Col className="headerBorder" xs lg="2">
+            <Button
+                  variant="primary"
+                  className="NotesButton smallTealButton"
+                  onClick={() => setShowNotes(true)}
+                >
+                  Show Notes
+                </Button>
+                <Notes show={showNotes} onHide={() => setShowNotes(false)} />
+          </Col>
+          <Col className="headerBorder" xs lg="2">
             <Row style={{backgroundColor: "#38455D"}}>User: {auth.currentUser ? auth.currentUser.email : "error"}</Row>
             <Row style={{backgroundColor: "#38455D"}}>Saved: {savedTime}</Row>
           </Col>
@@ -778,16 +788,6 @@ export default function Play() {
                 <label>Upload Template</label>
                 <input className="smallTealButton" type="file" onChange={onChange}></input>
               </Container>
-            </Row>
-            <Row className="containerBorder">
-              <Button
-                variant="primary"
-                className="NotesButton smallTealButton"
-                onClick={() => setShowNotes(true)}
-              >
-                Show Notes
-              </Button>
-              <Notes show={showNotes} onHide={() => setShowNotes(false)} />
             </Row>
           </Col>
           <Col className="containerBorder">
