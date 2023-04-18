@@ -192,6 +192,7 @@ export default function Play() {
   };
 
   const addShape = (shapeType) => {
+    toggleMode(3)
     let newShape = {
       type: "shape",
       x: 50,
@@ -209,7 +210,19 @@ export default function Play() {
     contextRef.current.beginPath();
     if (shape.shape === "O") {
       contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
-    } else {
+    } else if (shape.shape === "triangle") {
+      // TODO: finish this
+      contextRef.current.moveTo(shape.x, shape.y - 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x - 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x, shape.y - 20);
+    } else if (shape.shape === "square") {
+      contextRef.current.moveTo(shape.x - 20, shape.y - 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y - 20);
+      contextRef.current.lineTo(shape.x + 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x - 20, shape.y + 20);
+      contextRef.current.lineTo(shape.x - 20, shape.y - 20); 
+    }else {
       contextRef.current.beginPath();
       contextRef.current.moveTo(shape.x - 20, shape.y - 20);
       contextRef.current.lineTo(shape.x + 20, shape.y + 20);
@@ -602,6 +615,8 @@ export default function Play() {
                 <ButtonGroup>
                   <Button className="smallTealButton" onClick={() => addShape("O")}>O</Button>
                   <Button className="smallTealButton" onClick={() => addShape("X")}>X</Button>
+                  <Button className="smallTealButton" onClick={() => addShape("triangle")}>/\</Button>
+                  <Button className="smallTealButton" onClick={() => addShape("square")}>|=|</Button>
                 </ButtonGroup>
 
                 <ButtonGroup>
