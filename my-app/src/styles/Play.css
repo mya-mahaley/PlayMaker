@@ -1,23 +1,20 @@
 .containerBorder {
-  border: solid #000; 
+  border: solid #000;
   text-align: center;
   padding: 8px;
-  
   border: 2px;
-  background-color: #38455D;
+  background-color: #38455d;
   border-style: hidden;
   box-shadow: 1px 1px 10px 1px rgba(31, 34, 57, 0.8);
   border-radius: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
-  margin-right:8px;
-
-  
+  margin-right: 8px;
 }
 
 .headerBorder {
   border: 2px;
-  background-color: #38455D;
+  background-color: #38455d;
   border-style: hidden;
   padding-top: 7px;
   box-shadow: 1px 1px 10px 1px rgba(31, 34, 57, 0.8);
@@ -36,10 +33,10 @@
   margin: 0px;
 }
 .smallTealButton {
-  background-color: #08C6AC;
-  border-color: #08C6AC;
+  background-color: #08c6ac;
+  border-color: #08c6ac;
   font-size: medium;
 }
 Button.active {
-  background-color: #06627E;
+  background-color: #06627e;
 }

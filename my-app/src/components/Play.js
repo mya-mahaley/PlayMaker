@@ -828,19 +828,19 @@ export default function Play() {
                       onColorClick={() => handlePickerClick()}
                       selectedColor={color}
                     ></ColorPickButton>
+                    {showPicker ? (
+                      <div style={popover}>
+                        <div onClick={handlePickerClose} />
+                        <SketchPicker
+                          color={pickerColor}
+                          onChange={(color) => handlePickerChange(color.hex)}
+                          onChangeComplete={(color) =>
+                            handleColorClick(color.hex)
+                          }
+                        />
+                      </div>
+                    ) : null}
                   </Col>
-                  {showPicker ? (
-                    <div style={popover}>
-                      <div style={cover} onClick={handlePickerClose} />
-                      <SketchPicker
-                        color={pickerColor}
-                        onChange={(color) => handlePickerChange(color.hex)}
-                        onChangeComplete={(color) =>
-                          handleColorClick(color.hex)
-                        }
-                      />
-                    </div>
-                  ) : null}
                 </Row>
               </Container>
             </Row>
