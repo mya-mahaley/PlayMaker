@@ -10,7 +10,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(true);
-  const databaseURL = process.env.REACT_APP_DATABASE_URL
+  const databaseURL = process.env.REACT_APP_DATABASE_URL;
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -18,7 +18,7 @@ export default function SignUp() {
       .then((userCredential) => {
         // signed in
         const user = userCredential.user;
-        addUser(user.uid)
+        addUser(user.uid);
         console.log(user);
       })
       .catch((error) => {
@@ -32,7 +32,7 @@ export default function SignUp() {
     if (userID) {
       const data = {
         playCount: 0,
-        playIDList: [""]
+        playIDList: [""],
       };
       return fetch(`${databaseURL + "users/" + userID}.json`, {
         method: "PUT",
@@ -46,8 +46,7 @@ export default function SignUp() {
         }
       });
     }
-  }
-  
+  };
 
   const handleEmailChange = (event) => {
     const target = event.target;
@@ -76,22 +75,39 @@ export default function SignUp() {
   };
 
   return (
-    <div className="container" style={{backgroundColor: "#38455D"}}>
-      <h2><b>Sign Up</b></h2>
+    <div className="container" style={{ backgroundColor: "#38455D" }}>
+      <h2>
+        <b>Sign Up</b>
+      </h2>
       <Form>
-          <Form.Group className="mb-3">
-            <Form.Control className = "form-control-lg" rows={1} onChange={handleEmailChange} placeholder="Email Address"/>
-          </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Control
+            className="form-control-lg"
+            rows={1}
+            onChange={handleEmailChange}
+            placeholder="Email Address"
+          />
+        </Form.Group>
       </Form>
       <Form>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-            <Form.Control className = "form-control-lg" rows={1} onChange={handlePasswordChange} placeholder="Password"/>
-          </Form.Group>
+        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Control
+            className="form-control-lg"
+            rows={1}
+            onChange={handlePasswordChange}
+            placeholder="Password"
+          />
+        </Form.Group>
       </Form>
       <Form>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-            <Form.Control className = "form-control-lg" rows={1} onChange={handlePassword2Change} placeholder="Password"/>
-          </Form.Group>
+        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Control
+            className="form-control-lg"
+            rows={1}
+            onChange={handlePassword2Change}
+            placeholder="Password"
+          />
+        </Form.Group>
       </Form>
       {passwordMatch ? <div></div> : <div>Passwords do not match!</div>}
       <Button className="TealButton" type="submit" onClick={onSubmit}>

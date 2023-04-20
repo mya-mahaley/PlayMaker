@@ -4,12 +4,10 @@ import Button from "react-bootstrap/Button";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
-
-
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -39,17 +37,29 @@ export default function SignIn() {
   };
 
   return (
-    <div className="container" style={{backgroundColor: "#38455D"}}>
-      <h2><b>Login</b></h2>
-      <Form> 
-          <Form.Group className="mb-3">
-            <Form.Control className = "form-control-lg" rows={1} onChange={handleEmailChange} placeholder="Email Address"/>
-          </Form.Group>
+    <div className="container" style={{ backgroundColor: "#38455D" }}>
+      <h2>
+        <b>Login</b>
+      </h2>
+      <Form>
+        <Form.Group className="mb-3">
+          <Form.Control
+            className="form-control-lg"
+            rows={1}
+            onChange={handleEmailChange}
+            placeholder="Email Address"
+          />
+        </Form.Group>
       </Form>
-      <Form >
-          <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-            <Form.Control className = "form-control-lg" rows={1} onChange={handlePasswordChange} placeholder="Password"/>
-          </Form.Group>
+      <Form>
+        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+          <Form.Control
+            className="form-control-lg"
+            rows={1}
+            onChange={handlePasswordChange}
+            placeholder="Password"
+          />
+        </Form.Group>
       </Form>
       <Button className="TealButton" onClick={onSubmit}>
         Login

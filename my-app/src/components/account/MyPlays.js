@@ -10,11 +10,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { auth } from "../login/firebase";
 import { signOut } from "firebase/auth";
 
-export default function MyPlays(){
-
-    return(
-        <Container className="ScrollContainer"></Container>
-        
-    )
-
+export default function MyPlays() {
+  return <Container className="ScrollContainer"></Container>;
 }

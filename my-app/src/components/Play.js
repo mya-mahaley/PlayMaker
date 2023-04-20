@@ -14,25 +14,24 @@ import blank from "../images/blank_bg.jpg";
 import football from "../images/football_bg.png";
 import basketball from "../images/basketball_bg.jpg";
 import baseball from "../images/baseball_bg.jpg";
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import NoteIcon from '@mui/icons-material/Note';
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import SquareOutlinedIcon from '@mui/icons-material/SquareOutlined';
-import BackspaceOutlinedIcon from '@mui/icons-material/BackspaceOutlined';
-import PanToolAltOutlinedIcon from '@mui/icons-material/PanToolAltOutlined';
-import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined';
-import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
-import RedoOutlinedIcon from '@mui/icons-material/RedoOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import EditIcon from '@mui/icons-material/Edit';
-import SportsFootballIcon from '@mui/icons-material/SportsFootball';
-import SportsBaseballIcon from '@mui/icons-material/SportsBaseball';
-import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
-import ClearAllIcon from '@mui/icons-material/ClearAll';
+import NoteIcon from "@mui/icons-material/Note";
+import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import SquareOutlinedIcon from "@mui/icons-material/SquareOutlined";
+import BackspaceOutlinedIcon from "@mui/icons-material/BackspaceOutlined";
+import PanToolAltOutlinedIcon from "@mui/icons-material/PanToolAltOutlined";
+import ChangeHistoryOutlinedIcon from "@mui/icons-material/ChangeHistoryOutlined";
+import UndoOutlinedIcon from "@mui/icons-material/UndoOutlined";
+import RedoOutlinedIcon from "@mui/icons-material/RedoOutlined";
+import SaveIcon from "@mui/icons-material/Save";
+import EditIcon from "@mui/icons-material/Edit";
+import SportsFootballIcon from "@mui/icons-material/SportsFootball";
+import SportsBaseballIcon from "@mui/icons-material/SportsBaseball";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import ClearAllIcon from "@mui/icons-material/ClearAll";
 import { auth, storage } from "./login/firebase";
-
 
 // Drawing function from https://github.com/mikkuayu/React-Projects/blob/main/MyCanvas/my-canvas/src/components/DrawingCanvas/DrawingCanvas.js
 // Color Picker Button from https://casesandberg.github.io/react-color/
@@ -42,11 +41,10 @@ import { auth, storage } from "./login/firebase";
 // Undo/Redo from https://medium.com/geekculture/react-hook-to-allow-undo-redo-d9d791c5cd94
 // Arrows on routes from https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
 
+// Upload play preview https://www.makeuseof.com/upload-files-to-firebase-using-reactjs/ https://github.com/eligrey/FileSaver.js/issues/263
+const databaseURL = process.env.REACT_APP_DATABASE_URL;
 
-// Upload play preview https://www.makeuseof.com/upload-files-to-firebase-using-reactjs/ https://github.com/eligrey/FileSaver.js/issues/263 
-const databaseURL = process.env.REACT_APP_DATABASE_URL
-
-function ColorButton({ value, onColorClick, selectedColor}) {
+function ColorButton({ value, onColorClick, selectedColor }) {
   const cStyle = {
     margin: "0px",
     aspectRatio: 1,
@@ -92,29 +90,26 @@ function ColorPickButton({ value, onColorClick, selectedColor }) {
 export default function Play() {
   const [showNotes, setShowNotes] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
-  
+
   const [color, setColor] = useState("#000000");
   const [pickerColor, setPickerColor] = useState("#DD22BD");
   const [currentBackground, changeCurrentBackground] = useState(blank);
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
-  const location = useLocation()
-  const navigate = useNavigate()
-  const playID = location.state?.playID
-  const playTitle = location.state ? location.state?.playTitle : "Play"
+  const location = useLocation();
+  const navigate = useNavigate();
+  const playID = location.state?.playID;
+  const playTitle = location.state ? location.state?.playTitle : "Play";
   const [title, setTitle] = useState(playTitle);
-  const [savedTime, setSavedTime] = useState("Not Saved")
-  const isNewPlay = location.state?.isNewPlay
-  const prevBackground = location.state?.playBackground
-  
-  
-  console.log(location)
-  console.log(playID)
-  console.log(playTitle)
-  console.log(isNewPlay)
+  const [savedTime, setSavedTime] = useState("Not Saved");
+  const isNewPlay = location.state?.isNewPlay;
+  const prevBackground = location.state?.playBackground;
 
- 
-  
+  console.log(location);
+  console.log(playID);
+  console.log(playTitle);
+  console.log(isNewPlay);
+
   //const userID = auth.currentUser.uid;
 
   const [mouseDown, setMouseDown] = useState(false);
@@ -158,17 +153,17 @@ export default function Play() {
     contextRef.current = context;
     contextRef.current.globalCompositeOperation = "source-over";
 
-    if(!isNewPlay){
-      loadPlay()
+    if (!isNewPlay) {
+      loadPlay();
     }
-    if(prevBackground === "football"){
-      changeCurrentBackground(football)
+    if (prevBackground === "football") {
+      changeCurrentBackground(football);
     } else if (prevBackground === "basketball") {
-      changeCurrentBackground(basketball)
-    }  else if (prevBackground === "baseball") {
-      changeCurrentBackground(baseball)
+      changeCurrentBackground(basketball);
+    } else if (prevBackground === "baseball") {
+      changeCurrentBackground(baseball);
     }
-  }, []);
+  }, [isNewPlay, prevBackground]);
 
   const onChange = (event) => {
     // data for submit
@@ -182,45 +177,46 @@ export default function Play() {
     //const userID = auth.currentUser.uid
     if (auth.currentUser) {
       // Data for new Play
-      const userID = auth.currentUser.uid
+      const userID = auth.currentUser.uid;
       fetch(`${databaseURL}users/${userID}/${playID}.json`)
-          .then((res) => {
-            console.log("RES");
-            console.log(res);
-            if (res.status !== 200) {
-              console.log("There was an error: " + res.statusText);
-              return;
+        .then((res) => {
+          console.log("RES");
+          console.log(res);
+          if (res.status !== 200) {
+            console.log("There was an error: " + res.statusText);
+            return;
+          } else {
+            return res.json();
+          }
+        })
+        .then((res) => {
+          if (res) {
+            console.log("get play count" + res.playCount);
+            if (res.drawings) {
+              setDrawings(res.drawings);
             } else {
-              return res.json();
+              setDrawings([]);
             }
-          }).then((res) => {
-            if (res) {
-              console.log("get play count" + res.playCount)
-              if(res.drawings){
-                setDrawings(res.drawings)
-              } else {
-                setDrawings([])
-              }
-              
-              setTitle(res.title)
-            } else {
-              console.log("erroooorrrr loading")
-            }
-          });
+
+            setTitle(res.title);
+          } else {
+            console.log("erroooorrrr loading");
+          }
+        });
     }
   };
 
   const addDrawing = (drawing) => {
-     // let newDrawings = [...drawings];
-     let newDrawings = JSON.parse(JSON.stringify(drawings));
-     let newDrawing = JSON.parse(JSON.stringify(drawing));
-     addCanvasState([...newDrawings, newDrawing]);
-     setDrawings([...newDrawings, newDrawing]);
-     // setDrawings((drawings) => [...drawings, drawing]);
+    // let newDrawings = [...drawings];
+    let newDrawings = JSON.parse(JSON.stringify(drawings));
+    let newDrawing = JSON.parse(JSON.stringify(drawing));
+    addCanvasState([...newDrawings, newDrawing]);
+    setDrawings([...newDrawings, newDrawing]);
+    // setDrawings((drawings) => [...drawings, drawing]);
   };
 
   const addShape = (shapeType) => {
-    toggleMode(3)
+    toggleMode(3);
     let newShape = {
       type: "shape",
       x: 50,
@@ -240,7 +236,6 @@ export default function Play() {
     if (shape.shape === "O") {
       contextRef.current.arc(shape.x, shape.y, 20, 0, 2 * Math.PI);
     } else if (shape.shape === "triangle") {
-      // TODO: finish this
       contextRef.current.moveTo(shape.x, shape.y - 20);
       contextRef.current.lineTo(shape.x + 20, shape.y + 20);
       contextRef.current.lineTo(shape.x - 20, shape.y + 20);
@@ -250,8 +245,8 @@ export default function Play() {
       contextRef.current.lineTo(shape.x + 20, shape.y - 20);
       contextRef.current.lineTo(shape.x + 20, shape.y + 20);
       contextRef.current.lineTo(shape.x - 20, shape.y + 20);
-      contextRef.current.lineTo(shape.x - 20, shape.y - 20); 
-    }else {
+      contextRef.current.lineTo(shape.x - 20, shape.y - 20);
+    } else {
       contextRef.current.beginPath();
       contextRef.current.moveTo(shape.x - 20, shape.y - 20);
       contextRef.current.lineTo(shape.x + 20, shape.y + 20);
@@ -301,9 +296,7 @@ export default function Play() {
     // remove all future (redo) states
     console.log(currentIndex);
     let canvasState = JSON.parse(
-      JSON.stringify([
-        ...canvasStates.slice(0, currentIndex + 1),
-      ])
+      JSON.stringify([...canvasStates.slice(0, currentIndex + 1)])
     );
     canvasState.push(currentDrawing);
     // let canvasState = [
@@ -333,25 +326,25 @@ export default function Play() {
     if (auth.currentUser) {
       // Data for new Play
       //uploadCanvas()
-      const userID = auth.currentUser.uid
-      const canvas = canvasRef.current
+      const userID = auth.currentUser.uid;
+      const canvas = canvasRef.current;
 
-      var mediumQuality = canvas.toDataURL("image/png", 0.5)
-      var background = "blank"
-      if(currentBackground === football){
-        background = "football"
+      var mediumQuality = canvas.toDataURL("image/png", 0.5);
+      var background = "blank";
+      if (currentBackground === football) {
+        background = "football";
       } else if (currentBackground === basketball) {
-        background = "basketball"
-      }  else if (currentBackground === baseball) {
-        background = "baseball"
+        background = "basketball";
+      } else if (currentBackground === baseball) {
+        background = "baseball";
       }
 
-      console.log(mediumQuality)
+      console.log(mediumQuality);
       const data = {
         title: title,
         drawings: drawings,
         preview: mediumQuality,
-        background: background
+        background: background,
       };
 
       //Create new play in DB, then navigate to the play page
@@ -363,32 +356,37 @@ export default function Play() {
           console.log("There was an error.");
           return;
         } else {
-          const today = new Date()
-          let hours = today.getHours()
-          let mins = today.getMinutes()
-          let suffix = "AM"
-          if(hours >= 12){
-            hours= hours % 12
-            suffix = "PM"
+          const today = new Date();
+          let hours = today.getHours();
+          let mins = today.getMinutes();
+          let suffix = "AM";
+          if (hours >= 12) {
+            hours = hours % 12;
+            suffix = "PM";
           }
-          if(mins < 10){
-            mins = "0" + mins
+          if (mins < 10) {
+            mins = "0" + mins;
           }
-          const time = today.getMonth() + "/" + today.getDate() + ", " + hours + ':' + mins + " " + suffix;
-          setSavedTime(time)
-          console.log("play saved successfully")
+          const time =
+            today.getMonth() +
+            "/" +
+            today.getDate() +
+            ", " +
+            hours +
+            ":" +
+            mins +
+            " " +
+            suffix;
+          setSavedTime(time);
+          console.log("play saved successfully");
         }
-      })
+      });
     }
   };
 
   const back = async () => {
-    save().then(navigate("\account"))
-  }
-
-
-
-
+    save().then(navigate("account"));
+  };
 
   // draws all the shapes on the canvas, updates when array of objects get updated
   useEffect(() => {
@@ -480,7 +478,6 @@ export default function Play() {
     bottom: "0px",
     left: "0px",
   };
-  
 
   // onMouseDown
   const startDrawing = ({ nativeEvent }) => {
@@ -491,17 +488,17 @@ export default function Play() {
     if (eraseMode) {
       // erase mode, delete the nearest drawing and redraw
       // let newDrawings = [
-        //   ...drawings.slice(0, nearestDrawing),
-        //   ...drawings.slice(nearestDrawing + 1, drawings.length),
-        // ];
-        let newDrawings = JSON.parse(
-          JSON.stringify([
-            ...drawings.slice(0, nearestDrawing),
-            ...drawings.slice(nearestDrawing + 1, drawings.length),
-          ])
-        );
-        addCanvasState(newDrawings);
-        setDrawings(newDrawings);
+      //   ...drawings.slice(0, nearestDrawing),
+      //   ...drawings.slice(nearestDrawing + 1, drawings.length),
+      // ];
+      let newDrawings = JSON.parse(
+        JSON.stringify([
+          ...drawings.slice(0, nearestDrawing),
+          ...drawings.slice(nearestDrawing + 1, drawings.length),
+        ])
+      );
+      addCanvasState(newDrawings);
+      setDrawings(newDrawings);
     } else if (canDraw) {
       contextRef.current.beginPath();
       contextRef.current.moveTo(offsetX, offsetY);
@@ -607,130 +604,195 @@ export default function Play() {
     setCanArrow(mode2);
     toggleMode(2);
   };
-  
 
   return (
     <div>
       <Container>
-        <Row >
+        <Row>
           <Col className="headerBorder" xs lg="3">
             <Link to="/account">
-              <Button className="smallTealButton" onClick={() => back()}>Back</Button>
-              </Link>
+              <Button className="smallTealButton" onClick={() => back()}>
+                Back
+              </Button>
+            </Link>
             <ButtonGroup>
-
-              <Button className="smallTealButton" onClick={() => undoAction()}><UndoOutlinedIcon/></Button>
-              <Button className="smallTealButton" onClick={() => redoAction()}><RedoOutlinedIcon/></Button>
-      
+              <Button className="smallTealButton" onClick={() => undoAction()}>
+                <UndoOutlinedIcon />
+              </Button>
+              <Button className="smallTealButton" onClick={() => redoAction()}>
+                <RedoOutlinedIcon />
+              </Button>
             </ButtonGroup>
-            <Button className="smallTealButton" onClick={() => save()}><SaveIcon/></Button>
+            <Button className="smallTealButton" onClick={() => save()}>
+              <SaveIcon />
+            </Button>
           </Col>
           <Col className="headerBorder">
-              <Form>
-                <Form.Group
-                  className="mb-3"
-                  controlId="exampleForm.ControlTextarea1"
-                >
-                  <Form.Control
-                    size="md"
-                    type="text"
-                    rows={1}
-                    onChange={(e) => {
-                      setTitle(e.target.value);
-                    }}
-                    defaultValue={title}
-                  />
-                </Form.Group>
-              </Form>
+            <Form>
+              <Form.Group
+                className="mb-3"
+                controlId="exampleForm.ControlTextarea1"
+              >
+                <Form.Control
+                  size="md"
+                  type="text"
+                  rows={1}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                  }}
+                  defaultValue={title}
+                />
+              </Form.Group>
+            </Form>
           </Col>
           <Col className="headerBorder" xs lg="2">
             <Button
-                  variant="primary"
-                  className="NotesButton smallTealButton"
-                  onClick={() => setShowNotes(true)}
-                >
-                  Show Notes <NoteIcon></NoteIcon>
-                </Button>
-                <Notes show={showNotes} onHide={() => setShowNotes(false)} />
+              variant="primary"
+              className="NotesButton smallTealButton"
+              onClick={() => setShowNotes(true)}
+            >
+              Show Notes <NoteIcon></NoteIcon>
+            </Button>
+            <Notes show={showNotes} onHide={() => setShowNotes(false)} />
           </Col>
           <Col className="headerBorder" xs lg="2">
-            <Row style={{backgroundColor: "#38455D"}}>User: {auth.currentUser ? auth.currentUser.email : "error"}</Row>
-            <Row style={{backgroundColor: "#38455D"}}>Saved: {savedTime}</Row>
+            <Row style={{ backgroundColor: "#38455D" }}>
+              User: {auth.currentUser ? auth.currentUser.email : "error"}
+            </Row>
+            <Row style={{ backgroundColor: "#38455D" }}>Saved: {savedTime}</Row>
           </Col>
         </Row>
         <Row>
           <Col xs lg="3">
             <Row className="containerBorder">
               <h3>Shapes</h3>
-              <Container style={{backgroundColor: "#38455D"}}>
+              <Container style={{ backgroundColor: "#38455D" }}>
                 <ButtonGroup>
-                  <Button className="smallTealButton" onClick={() => addShape("O")}><CircleOutlinedIcon/></Button>
-                  <Button className="smallTealButton" onClick={() => addShape("X")}><CloseOutlinedIcon/></Button>
-                  <Button className="smallTealButton" onClick={() => addShape("triangle")}><ChangeHistoryOutlinedIcon/></Button>
-                  <Button className="smallTealButton" onClick={() => addShape("square")}><SquareOutlinedIcon/></Button>
+                  <Button
+                    className="smallTealButton"
+                    onClick={() => addShape("O")}
+                  >
+                    <CircleOutlinedIcon />
+                  </Button>
+                  <Button
+                    className="smallTealButton"
+                    onClick={() => addShape("X")}
+                  >
+                    <CloseOutlinedIcon />
+                  </Button>
+                  <Button
+                    className="smallTealButton"
+                    onClick={() => addShape("triangle")}
+                  >
+                    <ChangeHistoryOutlinedIcon />
+                  </Button>
+                  <Button
+                    className="smallTealButton"
+                    onClick={() => addShape("square")}
+                  >
+                    <SquareOutlinedIcon />
+                  </Button>
                 </ButtonGroup>
 
                 <ButtonGroup>
-                  <Button className={
+                  <Button
+                    className={
                       canDraw === true &&
                       canDash === false &&
                       canArrow === false
                         ? "active"
                         : "smallTealButton"
-                    } onClick={() => toggleRoute(false, false)}>—</Button>
-                  <Button className={
+                    }
+                    onClick={() => toggleRoute(false, false)}
+                  >
+                    —
+                  </Button>
+                  <Button
+                    className={
                       canDraw === true && canDash === true && canArrow === false
                         ? "active"
                         : "smallTealButton"
-                    } onClick={() => toggleRoute(true, false)}>- - -</Button>
-                  <Button className={
+                    }
+                    onClick={() => toggleRoute(true, false)}
+                  >
+                    - - -
+                  </Button>
+                  <Button
+                    className={
                       canDraw === true && canDash === false && canArrow === true
                         ? "active"
                         : "smallTealButton"
-                    } onClick={() => toggleRoute(false, true)}>
+                    }
+                    onClick={() => toggleRoute(false, true)}
+                  >
                     —{">"}
                   </Button>
-                  <Button className={
+                  <Button
+                    className={
                       canDraw === true && canDash === true && canArrow === true
                         ? "active"
                         : "smallTealButton"
-                    } onClick={() => toggleRoute(true, true)}>
+                    }
+                    onClick={() => toggleRoute(true, true)}
+                  >
                     - - -{">"}
                   </Button>
                 </ButtonGroup>
                 <ButtonGroup>
-                <Button className={canDrag === true ? "active" : "smallTealButton"} onClick={() => toggleMode(3)}>Drag<PanToolAltOutlinedIcon/></Button>
-                <Button className={eraseMode === true ? "active" : "smallTealButton"} onClick={() => toggleMode(1)}>Erase <BackspaceOutlinedIcon/></Button>
+                  <Button
+                    className={canDrag === true ? "active" : "smallTealButton"}
+                    onClick={() => toggleMode(3)}
+                  >
+                    Drag
+                    <PanToolAltOutlinedIcon />
+                  </Button>
+                  <Button
+                    className={
+                      eraseMode === true ? "active" : "smallTealButton"
+                    }
+                    onClick={() => toggleMode(1)}
+                  >
+                    Erase <BackspaceOutlinedIcon />
+                  </Button>
                 </ButtonGroup>
-                <Button className={"smallTealButton"} onClick={() => {addCanvasState([]); setDrawings([]); toggleMode(2)}}>Clear All <ClearAllIcon/></Button>
+                <Button
+                  className={"smallTealButton"}
+                  onClick={() => {
+                    addCanvasState([]);
+                    setDrawings([]);
+                    toggleMode(2);
+                  }}
+                >
+                  Clear All <ClearAllIcon />
+                </Button>
               </Container>
             </Row>
             <Row className="containerBorder">
               <h3>Colors</h3>
-              <Container fluid style={{backgroundColor: "#38455D"}}>
-                <Row style={{backgroundColor: "#38455D"}}>
-                  <Col style={{backgroundColor: "#38455D"}}>
+              <Container fluid style={{ backgroundColor: "#38455D" }}>
+                <Row style={{ backgroundColor: "#38455D" }}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorButton
                       value={"#F64D4D"}
                       onColorClick={() => handleColorClick("#F64D4D")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col style={{backgroundColor: "#38455D"}}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorButton
                       value={"#F69E4D"}
                       onColorClick={() => handleColorClick("#F69E4D")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col style={{backgroundColor: "#38455D"}}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorButton
                       value={"#F6E54D"}
                       onColorClick={() => handleColorClick("#F6E54D")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col style={{backgroundColor: "#38455D"}}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorButton
                       value={"#97F64D"}
                       onColorClick={() => handleColorClick("#97F64D")}
@@ -739,28 +801,28 @@ export default function Play() {
                   </Col>
                 </Row>
                 <Row>
-                  <Col style={{backgroundColor: "#38455D"}}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorButton
                       value={"#4D86F6"}
                       onColorClick={() => handleColorClick("#4D86F6")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col style={{backgroundColor: "#38455D"}}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorButton
                       value={"#000000"}
                       onColorClick={() => handleColorClick("#000000")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col style={{backgroundColor: "#38455D"}}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorButton
                       value={"#ffffff"}
                       onColorClick={() => handleColorClick("#ffffff")}
                       selectedColor={color}
                     ></ColorButton>
                   </Col>
-                  <Col style={{backgroundColor: "#38455D"}}>
+                  <Col style={{ backgroundColor: "#38455D" }}>
                     <ColorPickButton
                       value={pickerColor}
                       onColorClick={() => handlePickerClick()}
@@ -784,23 +846,51 @@ export default function Play() {
             </Row>
             <Row className="containerBorder">
               <h3>Templates</h3>
-              <Container style={{backgroundColor: "#38455D"}}>
-              <ButtonGroup>
-                <Button  className={currentBackground === football ? "active" : "smallTealButton"}onClick={() => changeCurrentBackground(football)}>
-                  <SportsFootballIcon/>
-                </Button>
-                <Button className={currentBackground === basketball ? "active" : "smallTealButton"} onClick={() => changeCurrentBackground(basketball)}>
-                <SportsBasketballIcon/>
-                </Button>
-                <Button className={currentBackground === baseball ? "active" : "smallTealButton"} onClick={() => changeCurrentBackground(baseball)}>
-                <SportsBaseballIcon/>
-                </Button>
-                <Button className="smallTealButton" onClick={() => changeCurrentBackground(blank)}>
-                 Blank
-                </Button>
+              <Container style={{ backgroundColor: "#38455D" }}>
+                <ButtonGroup>
+                  <Button
+                    className={
+                      currentBackground === football
+                        ? "active"
+                        : "smallTealButton"
+                    }
+                    onClick={() => changeCurrentBackground(football)}
+                  >
+                    <SportsFootballIcon />
+                  </Button>
+                  <Button
+                    className={
+                      currentBackground === basketball
+                        ? "active"
+                        : "smallTealButton"
+                    }
+                    onClick={() => changeCurrentBackground(basketball)}
+                  >
+                    <SportsBasketballIcon />
+                  </Button>
+                  <Button
+                    className={
+                      currentBackground === baseball
+                        ? "active"
+                        : "smallTealButton"
+                    }
+                    onClick={() => changeCurrentBackground(baseball)}
+                  >
+                    <SportsBaseballIcon />
+                  </Button>
+                  <Button
+                    className="smallTealButton"
+                    onClick={() => changeCurrentBackground(blank)}
+                  >
+                    Blank
+                  </Button>
                 </ButtonGroup>
                 <label>Upload Template</label>
-                <input className="smallTealButton" type="file" onChange={onChange}></input>
+                <input
+                  className="smallTealButton"
+                  type="file"
+                  onChange={onChange}
+                ></input>
               </Container>
             </Row>
           </Col>
