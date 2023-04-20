@@ -27,16 +27,19 @@
 .Canvas {
   border: 2px;
   border-style: solid;
+  touch-action: none;
 }
 
 .NotesButton {
   margin: 0px;
 }
+
 .smallTealButton {
   background-color: #08c6ac;
   border-color: #08c6ac;
   font-size: medium;
 }
+
 Button.active {
   background-color: #06627e;
 }
